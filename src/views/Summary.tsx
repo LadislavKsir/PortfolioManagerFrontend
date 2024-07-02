@@ -1,17 +1,23 @@
-// import React from "react";
-// import { useTranslation } from "react-i18next";
+import useFetch, {useFetchPost} from "../api/Api.ts"
+import {DataGrid, GridColDef, GridRowParams} from "@mui/x-data-grid";
 
-import  {axiosInstance} from "../api/Api.ts"
-import {GridColDef} from "@mui/x-data-grid";
-import MyTable from "../components/MyTable.tsx";
-import useSWR from "swr";
+import {useNavigate} from "react-router-dom";
+import {CoinTradesSummary, CoinTradesSummaryResponse} from "../types/CoinTradesSummary.ts";
+import {ListTradesResponse, Trade} from "../types/Trade.ts";
+import React, {JSX, useState} from "react";
+import addParams, {Parameter} from "../utils/UrlBuilder.ts";
+import {Button, Checkbox, TableContainer} from "@mui/material";
 
-// const fetcher = (url: string) => await axiosInstance(url).then((res: any) => res.data.json);
-const fetcher = async (url: string) => {
-    return await axiosInstance.get(url).then((res: { data: any; }) => res.data);
-};
+function getCurrentPercent(row: CoinTradesSummary) {
+    const diff = (row.holding * row.actualPrice) / (row.holding * row.averageBuyPrice)
+    if (diff > 1) {
+        return (diff - 1) * 100
+    } else {
+        return -(1 - diff) * 100
+    }
+}
 
-const columns: GridColDef[] = [
+const overviewTablecolumns: GridColDef[] = [
     {
         field: 'coinCode',
         headerName: 'Coin',
@@ -23,11 +29,31 @@ const columns: GridColDef[] = [
         type: 'number'
     },
     {
+        field: 'totalBuyPrice',
+        headerName: 'Buy value',
+        description: '',
+        width: 180
+    },
+    {
+        field: 'Actual value',
+        headerName: 'Actual value',
+        type: 'number',
+        valueGetter: (_, row: CoinTradesSummary) => row.holding * row.actualPrice,
+    },
+    {
+        field: 'Actual %',
+        headerName: 'Actual %',
+        type: 'number',
+        valueGetter: (_, row: CoinTradesSummary) => getCurrentPercent(row),
+    },
+
+    {
         field: 'actualPrice',
         headerName: 'Actual price',
         description: '',
         width: 180
     },
+
     {
         field: 'averageBuyPrice',
         headerName: 'Average buy price',
@@ -45,41 +71,191 @@ const columns: GridColDef[] = [
         headerName: 'Lowest buy price',
         description: '',
         width: 180,
-
-        headerClassName: "header card"
+        headerClassName: "my-header"
     },
 ];
 
+const lastTradesTableColumns: GridColDef[] = [
+    {
+        field: 'from',
+        headerName: 'From',
+        headerClassName: 'my-header',
+        type: 'string'
+    },
+    {
+        field: 'to',
+        headerName: 'To',
+        type: 'string'
+    },
+    {
+        field: 'averageBuyPrice',
+        headerName: 'Price',
+        description: '',
+        width: 180,
+        valueGetter: (_, row: Trade) => row.from === "USDT" ? row.inversePrice : row.price,
+    },
+    {
+        field: 'sellQuantity',
+        headerName: 'Quantity',
+        description: '',
+        width: 180,
+        valueGetter: (_, row: Trade) => row.from === "USDT" ? row.buyQuantity : row.sellQuantity,
+    },
+    {
+        field: 'tradeValue',
+        headerName: 'Trade value',
+        description: '',
+        width: 180,
+        valueGetter: (_, row: Trade) => row.from === "USDT" ? row.sellQuantity : row.buyQuantity,
+    },
+    {
+        field: 'date',
+        headerName: 'Date',
+        description: '',
+        width: 180,
+        valueGetter: (_, row: Trade) => new Date(row.date).toLocaleString(),
+    },
 
-function addId(x) {
-    x.id = x.coinCode
-    return x
-}
+
+];
+
 
 export default function Summary() {
+    const navigate = useNavigate();
 
-    const {data, error, isLoading} = useSWR('/trades-summary?skipNotOwnedCoins=true', fetcher)
-    // const response: CoinTrades  = useFetch<CoinTrades>('/trades-summary?skipNotOwnedCoins=true', {
-    //     method: MethodTypes.GET,
-    //     body: undefined
-    // });
-    // console.log(response);
+    const [checked, setChecked] = useState(true);
 
-
-    if (error || data === undefined|| data.coinTrades === undefined) return <div>{error?.toString()}</div>
+    function rowClick(params: GridRowParams) {
+        navigate("/coins/" + params.id);
+    }
 
 
-    const rows = data.coinTrades.map((x) => addId(x))
+    const listTradesSummaryParams: Parameter[] = [{key: "skipNotOwnedCoins", value: checked}]
+    const data = useFetch<CoinTradesSummaryResponse>(addParams('/trades-summary', listTradesSummaryParams))
 
-    console.log(rows);
+
+    const listTradesParams: Parameter[] = [{key: "pageSize", value: 10}]
+    const trades = useFetch<ListTradesResponse>(addParams('/trades', listTradesParams))
+
+    if (data === undefined || data.coinTrades === undefined) return (<div></div>)
+
+    function overviewTable(): JSX.Element {
+
+        return (<div>
+                <TableContainer>
+                    <DataGrid
+                        rows={data.coinTrades}
+                        columns={overviewTablecolumns}
+                        initialState={{
+                            pagination: {
+                                paginationModel: {page: 0, pageSize: 50},
+                            },
+                            sorting: {
+                                sortModel: [{field: 'unrealisedProfit', sort: 'desc'}],
+                            }
+                        }}
+                        getRowId={(row: CoinTradesSummary) => {
+                            return row.coinCode;
+                        }}
+                        getRowClassName={(params) => {
+                            return params.row.unrealisedProfit > 0 ? "profit" : "loss";
+                        }}
+                        onRowClick={rowClick}
+                        pageSizeOptions={[50, 100]}
+                    />
+                </TableContainer>
+            </div>
+
+        )
+    }
+
+    function lastTradesTable(): JSX.Element {
+
+        return (
+            <div>
+                <DataGrid
+                    rows={trades.trades}
+                    columns={lastTradesTableColumns}
+                    initialState={{
+                        pagination: {
+                            paginationModel: {page: 0, pageSize: 50},
+                        },
+                        sorting: {
+                            sortModel: [{field: 'date', sort: 'desc'}],
+                        }
+                    }}
+                    getRowClassName={(params) => {
+                        return params.row.from === "USDT" ? "profit" : "loss";
+                    }}
+                    pageSizeOptions={[50, 100]}
+                />
+
+            </div>
+        )
+    }
+
+    function syncButton() {
+
+        function handleClick() {
+            console.log("trigger sync")
+
+            useFetchPost("/trades/sync", {}).then(r => console.log(r))
+
+        }
+
+        return (
+            <Button variant="contained" className="my-button" onClick={handleClick}>Sync</Button>
+        )
+    }
+
+
+
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        console.log("handleChange-> %s, %s", checked, event.target.checked)
+        setChecked(event.target.checked);
+    };
+
+    function skipNotOwnedCoinsCheckbox(): JSX.Element {
+        const label = {inputProps: {'aria-label': 'Checkbox demo'}};
+        return (<Checkbox {...label} checked={checked} onChange={handleChange}/>)
+    }
+
+    function headTable(): JSX.Element {
+        console.log("Head table %o",trades)
+        return (
+            <table className="my-table">
+                <tbody>
+                <tr className="my-table-row">
+                    <td>Invested:</td>
+                    <td>{data.totalInvested}</td>
+                    <td></td>
+
+                </tr>
+                <tr className="my-table-row">
+                    <td>Actual Value:</td>
+                    <td>{data.totalActualValue}</td>
+                    <td></td>
+                </tr>
+                </tbody>
+            </table>
+
+        )
+    }
 
     return (
         <div>
             <h2>Summary</h2>
-            <MyTable
-                columns={columns}
-                rows={rows}
-            />
+            {/*<div style={{display: "flex"}}>*/}
+            <div className={"centered-element-wrapper"}>
+                <div className={"centered-element"}><p>Skip not owned coins? {checked}</p></div>
+                <div className={"centered-element"}>{skipNotOwnedCoinsCheckbox()}</div>
+                <div className={"centered-element"}>{syncButton()}</div>
+            </div>
+            {headTable()}
+            {overviewTable()}
+
+            <h3>Last trades</h3>
+            {lastTradesTable()}
         </div>
     );
 }

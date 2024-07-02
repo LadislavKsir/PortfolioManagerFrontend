@@ -1,5 +1,5 @@
 import axios from "axios";
-import useSWR, {SWRResponse} from "swr";
+import useSWR from "swr";
 
 export const axiosInstance = axios.create({
     baseURL: 'http://localhost:8080',
@@ -17,8 +17,15 @@ export enum MethodTypes {
     PATCH = 'PATCH'
 }
 
-
-
+// const useFetch = <T>(url: string, method: string): T => {
+//     const BASE_URL = 'http://localhost:8080'
+//
+//     const fetcher = async (url: string) => {
+//         return await axiosInstance.get(url).then((res: { data: T; }) => res.data as T);
+//     };
+//
+//     return useSWR(BASE_URL + url, fetcher).data as T
+// };
 
 const useFetch = <T>(url: string): T => {
     const BASE_URL = 'http://localhost:8080'
@@ -27,27 +34,13 @@ const useFetch = <T>(url: string): T => {
         return await axiosInstance.get(url).then((res: { data: T; }) => res.data as T);
     };
 
-    // const fetcher = async () => {
-    //     const init: RequestInit = {
-    //         method: dataObj.method,
-    //         headers: { 'Content-type': 'application/json' }
-    //     }
-    //     if (dataObj.body) {
-    //         init.body = JSON.stringify(dataObj.body)
-    //     }
-    //     console.log("fetcher")
-    //     axiosInstance.get(url).then((res: { data: any; }) => res.data);
-    //     return await fetch(BASE_URL + url, init).then((res) => {
-    //         console.log(res)
-    //         return res.json() as T;
-    //     });
-    // };
-//<T>
-    const rr = useSWR(BASE_URL + url, fetcher)
-    console.log("rr")
-    console.log(rr)
-    return rr.data as T
+    return useSWR(BASE_URL + url, fetcher).data as T
+};
 
+export const useFetchPost = async <T>(url: string, body: any): Promise<T> => {
+    const BASE_URL = 'http://localhost:8080'
+
+    return await axiosInstance.post(BASE_URL + url, body).then((res: { data: T; }) => res.data as T);
 };
 
 export default useFetch;

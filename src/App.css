@@ -46,3 +46,43 @@
 .header {
     font-weight: bold;
 }
+
+.my-button {
+    padding: 20px;
+!important;
+    margin: 20px;
+!important;
+}
+
+.my-header {
+    font-weight: bold;
+}
+
+.my-table {
+    width: -webkit-fill-available;
+}
+
+.my-table-row {
+    text-align: left;
+}
+
+.profit{
+    color: green;
+}
+
+.loss{
+    color: red;
+}
+.centered-element-wrapper {
+    display: inline-block;
+    /*display: flex;*/
+}
+
+
+.centered-element {
+    display: inline-block;
+    display: inline-block;
+    padding-left: 50px ;
+    padding-right: 50px ;
+    /*display: flex;*/
+}

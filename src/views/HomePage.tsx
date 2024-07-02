@@ -7,28 +7,50 @@ import {useNavigate} from "react-router-dom";
 export default function HomePage() {
     // const { t } = useTranslation();
 
-    function SummaryButton() {
+
+    function MyButton(link: string, name: string) {
         const navigate = useNavigate();
 
         function handleClick() {
-            navigate("/summary");
+            navigate(link);
         }
 
         return (
-            <Button variant="contained" onClick={handleClick}>Summary</Button>
+            <Button variant="contained" className="my-button" onClick={handleClick}>{name}</Button>
         )
     }
 
-    function handleContainedClick() {
-
+    function SummaryButton() {
+        return MyButton("/summary", "Summary")
     }
+
+    function DashboardButton() {
+        return MyButton("/dashboard", "Dashboard")
+    }
+
+    function CoinsButton() {
+        return MyButton("/coins", "Coins")
+    }
+
+    function OrdersButton() {
+        return MyButton("/orders", "Orders")
+    }
+
 
     return (
         <div>
             <h2>Hello</h2>
-            <div>
-                <Button variant="contained" onClick={handleContainedClick}>Contained</Button>
-                <SummaryButton/>
+            <div style={{display: "flex"}}>
+
+                <div className="my-button">
+                    <SummaryButton/>
+                </div>
+                <div className="my-button">
+                    <OrdersButton/>
+                </div>
+                <div className="my-button">
+                    <CoinsButton/>
+                </div>
             </div>
         </div>
     );

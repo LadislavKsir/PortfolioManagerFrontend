@@ -1,8 +1,11 @@
-export interface CoinTrades {
-    coinTrades: CoinTrade[]
+export interface CoinTradesSummaryResponse {
+    coinTrades: CoinTradesSummary[],
+    totalInvested: number,
+    totalActualValue: number
 }
 
-export interface CoinTrade {
+export interface CoinTradesSummary {
+    id: string | undefined,
     coinCode: string,
     holding: number,
     averageBuyPrice: number,
