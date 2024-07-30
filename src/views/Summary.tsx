@@ -7,6 +7,9 @@ import {ListTradesResponse, Trade} from "../types/Trade.ts";
 import React, {JSX, useState} from "react";
 import addParams, {Parameter} from "../utils/UrlBuilder.ts";
 import {Button, Checkbox, TableContainer} from "@mui/material";
+import {TradesSummarySnapshot} from "../types/TradesSummarySnapshot.ts";
+import {LineChart} from "@mui/x-charts";
+import isStableCoin from "../utils/StableCoins.ts";
 
 function getCurrentPercent(row: CoinTradesSummary) {
     const diff = (row.holding * row.actualPrice) / (row.holding * row.averageBuyPrice)
@@ -92,28 +95,29 @@ const lastTradesTableColumns: GridColDef[] = [
         headerName: 'Price',
         description: '',
         width: 180,
-        valueGetter: (_, row: Trade) => row.from === "USDT" ? row.inversePrice : row.price,
+        valueGetter: (_, row: Trade) => isStableCoin(row.from) ? row.inversePrice : row.price,
     },
     {
         field: 'sellQuantity',
         headerName: 'Quantity',
         description: '',
         width: 180,
-        valueGetter: (_, row: Trade) => row.from === "USDT" ? row.buyQuantity : row.sellQuantity,
+        valueGetter: (_, row: Trade) => isStableCoin(row.from) ? row.buyQuantity : row.sellQuantity,
     },
     {
         field: 'tradeValue',
         headerName: 'Trade value',
         description: '',
         width: 180,
-        valueGetter: (_, row: Trade) => row.from === "USDT" ? row.sellQuantity : row.buyQuantity,
+        valueGetter: (_, row: Trade) => isStableCoin(row.from) ? row.sellQuantity : row.buyQuantity,
     },
     {
         field: 'date',
         headerName: 'Date',
         description: '',
         width: 180,
-        valueGetter: (_, row: Trade) => new Date(row.date).toLocaleString(),
+        type: 'dateTime',
+        valueGetter: (_, row: Trade) => new Date(row.date),
     },
 
 
@@ -136,6 +140,8 @@ export default function Summary() {
 
     const listTradesParams: Parameter[] = [{key: "pageSize", value: 10}]
     const trades = useFetch<ListTradesResponse>(addParams('/trades', listTradesParams))
+
+    const snapshots: TradesSummarySnapshot[] = useFetch<TradesSummarySnapshot[]>('/trades-summary-snapshots')
 
     if (data === undefined || data.coinTrades === undefined) return (<div></div>)
 
@@ -169,6 +175,23 @@ export default function Summary() {
         )
     }
 
+
+    function SimpleLineChart() {
+        const pData = snapshots.map((x) => x.actualValue);
+        const xLabels = snapshots.map((x) => new Date(x.dateTime).toLocaleString());
+
+        return (
+            <LineChart
+                width={1280}
+                height={600}
+                series={[
+                    {data: pData, label: 'Actual value'},
+                ]}
+                xAxis={[{scaleType: 'point', data: xLabels}]}
+            />
+        );
+    }
+
     function lastTradesTable(): JSX.Element {
 
         return (
@@ -185,7 +208,7 @@ export default function Summary() {
                         }
                     }}
                     getRowClassName={(params) => {
-                        return params.row.from === "USDT" ? "profit" : "loss";
+                        return isStableCoin(params.row.from) ? "profit" : "loss";
                     }}
                     pageSizeOptions={[50, 100]}
                 />
@@ -209,7 +232,6 @@ export default function Summary() {
     }
 
 
-
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         console.log("handleChange-> %s, %s", checked, event.target.checked)
         setChecked(event.target.checked);
@@ -221,7 +243,7 @@ export default function Summary() {
     }
 
     function headTable(): JSX.Element {
-        console.log("Head table %o",trades)
+        console.log("Head table %o", trades)
         return (
             <table className="my-table">
                 <tbody>
@@ -252,6 +274,11 @@ export default function Summary() {
                 <div className={"centered-element"}>{syncButton()}</div>
             </div>
             {headTable()}
+
+            <h3>Summary chart</h3>
+            {SimpleLineChart()}
+
+            <h3>Overview</h3>
             {overviewTable()}
 
             <h3>Last trades</h3>

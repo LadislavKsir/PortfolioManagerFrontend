@@ -24,9 +24,9 @@ export default function HomePage() {
         return MyButton("/summary", "Summary")
     }
 
-    function DashboardButton() {
-        return MyButton("/dashboard", "Dashboard")
-    }
+    // function DashboardButton() {
+    //     return MyButton("/dashboard", "Dashboard")
+    // }
 
     function CoinsButton() {
         return MyButton("/coins", "Coins")

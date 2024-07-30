@@ -43,4 +43,10 @@ export const useFetchPost = async <T>(url: string, body: any): Promise<T> => {
     return await axiosInstance.post(BASE_URL + url, body).then((res: { data: T; }) => res.data as T);
 };
 
+export const useFetchDelete = async <T>(url: string): Promise<T> => {
+    const BASE_URL = 'http://localhost:8080'
+
+    return await axiosInstance.delete(BASE_URL + url).then((res: { data: T; }) => res.data as T);
+};
+
 export default useFetch;

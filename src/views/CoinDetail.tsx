@@ -8,12 +8,14 @@ import {CoinTradesSummaryResponse} from "../types/CoinTradesSummary.ts";
 import {DataGrid, GridColDef} from "@mui/x-data-grid";
 import addParams, {Parameter} from "../utils/UrlBuilder.ts";
 import {JSX} from "react";
+import isStableCoin from "../utils/StableCoins.ts";
 
-interface CoinDetailProps {
-    coinCode: string | undefined
-}
+// interface CoinDetailProps {
+//     coinCode: string | undefined
+// }
 
-export default function CoinDetail(props: CoinDetailProps | undefined) {
+// export default function CoinDetail(props: CoinDetailProps | undefined) {
+export default function CoinDetail() {
 
     const columns: GridColDef[] = [
         {
@@ -32,21 +34,21 @@ export default function CoinDetail(props: CoinDetailProps | undefined) {
             headerName: 'Price',
             description: '',
             width: 180,
-            valueGetter: (_, row: Trade) => row.from === "USDT" ? row.inversePrice : row.price,
+            valueGetter: (_, row: Trade) => isStableCoin(row.from) ? row.inversePrice : row.price,
         },
         {
             field: 'sellQuantity',
             headerName: 'Quantity',
             description: '',
             width: 180,
-            valueGetter: (_, row: Trade) => row.from === "USDT" ? row.buyQuantity : row.sellQuantity,
+            valueGetter: (_, row: Trade) =>  isStableCoin(row.from) ? row.buyQuantity : row.sellQuantity,
         },
         {
             field: 'tradeValue',
             headerName: 'Trade value',
             description: '',
             width: 180,
-            valueGetter: (_, row: Trade) => row.from === "USDT" ? row.sellQuantity : row.buyQuantity,
+            valueGetter: (_, row: Trade) =>  isStableCoin(row.from) ? row.sellQuantity : row.buyQuantity,
         },
         {
             field: 'date',
@@ -110,7 +112,7 @@ export default function CoinDetail(props: CoinDetailProps | undefined) {
                 </tbody>
             </table>
 
-    )
+        )
     }
 
     function coinTradesTable(): JSX.Element {

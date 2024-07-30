@@ -3,6 +3,8 @@ export interface ListOrdersResponse {
 }
 export interface Order {
     id: string,
+    orderId: string,
+    quoteId: string,
     from: string,
     to: string,
     sellQuantity: number,
