@@ -10,8 +10,6 @@ export default function addParams(url: string, parameters: Parameter[]): string 
             }
         }
     )
-
-    console.log(result)
     return result;
 }
 

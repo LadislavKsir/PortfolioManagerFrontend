@@ -1,12 +1,22 @@
 import {useParams} from "react-router-dom";
-import useFetch, {useFetchDelete} from "../api/Api.ts";
+import useFetch,  from "../../api/Api.ts";
 import {DataGrid, GridColDef, GridRenderCellParams} from "@mui/x-data-grid";
-import addParams, {Parameter} from "../utils/UrlBuilder.ts";
-import {JSX} from "react";
-import {ListOrdersResponse, Order} from "../types/Orders.ts";
+import addParams, {Parameter} from "../../utils/UrlBuilder.ts";
+import {JSX, useEffect} from "react";
+import {ListOrdersResponse, Order} from "../../types/Orders.ts";
 import {Button} from "@mui/material";
+import {MenuProps, NavigationDefinition} from "../../App.tsx";
 
-export default function Orders() {
+export default function Orders(menuProps: MenuProps) {
+
+    useEffect(() => {
+        const navigationContent: NavigationDefinition[] = [
+            {text: "Summary", link: "/binance/summary"},
+            {text: "Orders", link: "/binance/orders"},
+            {text: "Coins", link: "/binance/coins"},
+        ]
+        menuProps.setNavigationContent(navigationContent)
+    }, []);
 
     const buyColumns: GridColDef[] = [
         {
@@ -120,8 +130,8 @@ export default function Orders() {
     const buyParams: Parameter[] = [{key: 'coinCodes', value: code}, {key: 'type', value: "BUY"}]
     const sellParams: Parameter[] = [{key: 'coinCodes', value: code}, {key: 'type', value: "SELL"}]
 
-    const buyOrders = useFetch<ListOrdersResponse>(addParams('/orders', buyParams))
-    const sellOrders = useFetch<ListOrdersResponse>(addParams('/orders', sellParams))
+    const buyOrders = useFetch<ListOrdersResponse>(addParams('/binance/orders', buyParams))
+    const sellOrders = useFetch<ListOrdersResponse>(addParams('/binance/orders', sellParams))
 
     if (buyOrders === undefined || sellOrders === undefined) {
         return (<div></div>)

@@ -1,7 +1,7 @@
 // import React from "react";
 // import { useTranslation } from "react-i18next";
-import useFetch from "../api/Api.ts";
-import {Coin, ListCoinsResponse} from "../types/Coin.ts";
+import useFetch from "../../api/Api.ts";
+import {Coin, ListCoinsResponse} from "../../types/Coin.ts";
 import {Button} from "@mui/material";
 import {JSX} from "react";
 import {useNavigate} from "react-router-dom";
@@ -9,7 +9,7 @@ import {useNavigate} from "react-router-dom";
 export default function Coins() {
 
     const navigate = useNavigate();
-    const data = useFetch<ListCoinsResponse>("/coins")
+    const data = useFetch<ListCoinsResponse>("/binance/coins")
 
 
     function getCoinButtons(data: ListCoinsResponse) {

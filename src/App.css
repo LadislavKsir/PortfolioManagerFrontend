@@ -1,47 +1,85 @@
+.homepage-choice-container {
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.homepage-choice-image {
+    width: 300px;
+    /*height: 64px;*/
+    margin: 0 32px 0 32px;
+
+}
+
+.header-bar {
+    background-color: #888888;
+    /*width: 2303px;*/
+    height: 450px;
+}
+
+.homepage-container {
+    /*max-width: fit-content;*/
+    /*margin-top: 3%;*/
+}
+
+
+.blue-background {
+    background-color: #1976d2;
+}
+
+
+#app-div {
+}
+
+.wrapper {
+}
+
+#summary-root {
+}
+
 #root {
-    /*max-width: 1280px;*/
-    margin: 0 auto;
-    padding: 2rem;
+    height: 100%;
+    width: 99%;
+
+    /* example padding, font-size, background, etc */
+    padding: 10px;
+    font-size: 20px;
+    /*background-color: lightskyblue;*/
+
+
+    /*margin: 0 auto;*/
+    /*padding: 1rem;*/
     text-align: center;
+
+    /*height: 1200px;*/
+
 }
 
-.logo {
-    height: 6em;
-    padding: 1.5em;
-    will-change: filter;
-    transition: filter 300ms;
+.root-div {
+
 }
 
-.logo:hover {
-    filter: drop-shadow(0 0 2em #646cffaa);
+
+
+html,
+body {
+    margin: 0;
+    padding: 0;
 }
 
-.logo.react:hover {
-    filter: drop-shadow(0 0 2em #61dafbaa);
+/* use viewport-relative units to cover page fully */
+body {
+    height: 100vh;
+    width: 100vw;
 }
 
-@keyframes logo-spin {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
+/* include border and padding in element width and height */
+* {
+    box-sizing: border-box;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-    a:nth-of-type(2) .logo {
-        animation: logo-spin infinite 20s linear;
-    }
-}
 
-.card {
-    padding: 2em;
-}
-
-.read-the-docs {
-    color: #888;
-}
 
 .header {
     font-weight: bold;
@@ -58,21 +96,23 @@
     font-weight: bold;
 }
 
-.my-table {
+.menu-table {
     width: -webkit-fill-available;
 }
 
-.my-table-row {
+.menu-table-row {
     text-align: left;
+    font-size: medium;
 }
 
-.profit{
+.profit {
     color: green;
 }
 
-.loss{
+.loss {
     color: red;
 }
+
 .centered-element-wrapper {
     display: inline-block;
     /*display: flex;*/
@@ -81,8 +121,8 @@
 
 .centered-element {
     display: inline-block;
-    display: inline-block;
-    padding-left: 50px ;
-    padding-right: 50px ;
+    padding-left: 50px;
+    padding-right: 50px;
     /*display: flex;*/
 }
+
