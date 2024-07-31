@@ -1,57 +1,54 @@
-// import React from "react";
-// import { useTranslation } from "react-i18next";
-
-import {Button} from "@mui/material";
-import {useNavigate} from "react-router-dom";
+import {JSX} from "react";
+import Stack from '@mui/material/Stack';
+import Paper from '@mui/material/Paper';
+import {styled} from '@mui/material/styles';
 
 export default function HomePage() {
-    // const { t } = useTranslation();
-
-
-    function MyButton(link: string, name: string) {
-        const navigate = useNavigate();
-
-        function handleClick() {
-            navigate(link);
+    function ExchangePanel(imageSrc: string, navigateToPath: string): JSX.Element {
+        const onClick = () => {
+            // const navigate = useNavigate();
+            // navigate(navigateToPath);
+            window.location.href = navigateToPath
         }
 
         return (
-            <Button variant="contained" className="my-button" onClick={handleClick}>{name}</Button>
+            <div className={"homepage-choice-container"}>
+                <img
+                    className={"homepage-choice-image"}
+                    src={imageSrc}
+                    alt={"Binance logo"}
+                    onClick={onClick}>
+                </img>
+            </div>
         )
     }
 
-    function SummaryButton() {
-        return MyButton("/summary", "Summary")
-    }
-
-    // function DashboardButton() {
-    //     return MyButton("/dashboard", "Dashboard")
-    // }
-
-    function CoinsButton() {
-        return MyButton("/coins", "Coins")
-    }
-
-    function OrdersButton() {
-        return MyButton("/orders", "Orders")
-    }
+    const Item = styled(Paper)(({theme}) => ({
+        backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+        ...theme.typography.body2,
+        padding: theme.spacing(1),
+        textAlign: 'center',
+        color: theme.palette.text.secondary,
+    }));
 
 
     return (
-        <div>
-            <h2>Hello</h2>
-            <div style={{display: "flex"}}>
+        <div className={"homepage-container"}>
+            <Stack spacing={2}>
+                <Item>
+                    <div className={"header-bar"}>
+                    </div>
+                </Item>
+                <Item>
+                    <div className={"choice-bar"} style={{display: "flex"}}>
 
-                <div className="my-button">
-                    <SummaryButton/>
-                </div>
-                <div className="my-button">
-                    <OrdersButton/>
-                </div>
-                <div className="my-button">
-                    <CoinsButton/>
-                </div>
-            </div>
+                        {ExchangePanel("binance.png", '/binance/summary')}
+                        {ExchangePanel("portu.jpg", '/portu/summary')}
+                        {ExchangePanel("patria.png", '/patria/summary')}
+                        {ExchangePanel("investown.png", '/investown/summary')}
+                    </div>
+                </Item>
+            </Stack>
         </div>
     );
 }
