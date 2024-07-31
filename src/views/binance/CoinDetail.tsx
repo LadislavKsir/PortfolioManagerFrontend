@@ -1,20 +1,13 @@
-// import React from "react";
-// import { useTranslation } from "react-i18next";
-
-import {useParams} from "react-router-dom";
-import useFetch from "../api/Api.ts";
-import {ListTradesResponse, Trade} from "../types/Trade.ts";
-import {CoinTradesSummaryResponse} from "../types/CoinTradesSummary.ts";
+import useFetch from "../../api/Api.ts";
+import {ListTradesResponse, Trade} from "../../types/Trade.ts";
+import {CoinTradesSummaryResponse} from "../../types/CoinTradesSummary.ts";
 import {DataGrid, GridColDef} from "@mui/x-data-grid";
-import addParams, {Parameter} from "../utils/UrlBuilder.ts";
+import addParams, {Parameter} from "../../utils/UrlBuilder.ts";
 import {JSX} from "react";
-import isStableCoin from "../utils/StableCoins.ts";
+import isStableCoin from "../../utils/StableCoins.ts";
+import {useParams} from "react-router-dom";
 
-// interface CoinDetailProps {
-//     coinCode: string | undefined
-// }
 
-// export default function CoinDetail(props: CoinDetailProps | undefined) {
 export default function CoinDetail() {
 
     const columns: GridColDef[] = [
@@ -41,14 +34,14 @@ export default function CoinDetail() {
             headerName: 'Quantity',
             description: '',
             width: 180,
-            valueGetter: (_, row: Trade) =>  isStableCoin(row.from) ? row.buyQuantity : row.sellQuantity,
+            valueGetter: (_, row: Trade) => isStableCoin(row.from) ? row.buyQuantity : row.sellQuantity,
         },
         {
             field: 'tradeValue',
             headerName: 'Trade value',
             description: '',
             width: 180,
-            valueGetter: (_, row: Trade) =>  isStableCoin(row.from) ? row.sellQuantity : row.buyQuantity,
+            valueGetter: (_, row: Trade) => isStableCoin(row.from) ? row.sellQuantity : row.buyQuantity,
         },
         {
             field: 'date',
@@ -60,12 +53,10 @@ export default function CoinDetail() {
     ];
 
     const {code} = useParams();
-
-
     const params: Parameter[] = [{key: 'coinCodes', value: code}]
 
-    const coinTrades = useFetch<ListTradesResponse>(addParams('/trades', params))
-    const coinTradesSummary = useFetch<CoinTradesSummaryResponse>(addParams('/trades-summary', params));
+    const coinTrades = useFetch<ListTradesResponse>(addParams('/binance/trades', params))
+    const coinTradesSummary = useFetch<CoinTradesSummaryResponse>(addParams('/binance/trades-summary', params));
 
     if (coinTrades === undefined || coinTradesSummary === undefined) {
         return (<div></div>)
@@ -139,7 +130,6 @@ export default function CoinDetail() {
     return (
         <div>
             <h2>Coin detail</h2>
-
             {headTable()}
             {coinTradesTable()}
         </div>
