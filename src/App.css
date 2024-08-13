@@ -105,6 +105,15 @@ body {
     font-size: medium;
 }
 
+.coin-detail-table {
+    width: -webkit-fill-available;
+}
+
+.coin-detail-table-row {
+    text-align: left;
+    font-size: medium;
+}
+
 .profit {
     color: green;
 }

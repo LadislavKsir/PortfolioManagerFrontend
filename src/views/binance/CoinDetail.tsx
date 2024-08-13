@@ -3,12 +3,22 @@ import {ListTradesResponse, Trade} from "../../types/Trade.ts";
 import {CoinTradesSummaryResponse} from "../../types/CoinTradesSummary.ts";
 import {DataGrid, GridColDef} from "@mui/x-data-grid";
 import addParams, {Parameter} from "../../utils/UrlBuilder.ts";
-import {JSX} from "react";
+import {JSX, useEffect} from "react";
 import isStableCoin from "../../utils/StableCoins.ts";
 import {useParams} from "react-router-dom";
+import {MenuProps, NavigationDefinition} from "../../App.tsx";
 
 
-export default function CoinDetail() {
+export default function CoinDetail(menuProps: MenuProps) {
+
+    useEffect(() => {
+        const navigationContent: NavigationDefinition[] = [
+            {text: "Summary", link: "/binance/summary"},
+            {text: "Orders", link: "/binance/orders"},
+            {text: "Coins", link: "/binance/coins"},
+        ]
+        menuProps.setNavigationContent(navigationContent)
+    }, []);
 
     const columns: GridColDef[] = [
         {
@@ -47,7 +57,9 @@ export default function CoinDetail() {
             field: 'date',
             headerName: 'Date',
             description: '',
-            width: 180
+            width: 180,
+            type: 'dateTime',
+            valueGetter: (_, row: Trade) => new Date(row.date),
         },
 
     ];
@@ -74,27 +86,27 @@ export default function CoinDetail() {
 
     function headTable(): JSX.Element {
         return (
-            <table className="my-table">
+            <table className="coin-detail-table">
                 <tbody>
-                <tr className="my-table-row">
+                <tr className="coin-detail-table-row">
                     <td>Code:</td>
                     <td>{code}</td>
                     <td>Actual Value:</td>
                     <td> {actualValue}</td>
                 </tr>
-                <tr className="my-table-row">
+                <tr className="coin-detail-table-row">
                     <td>Holding:</td>
                     <td>{coinTradeSummary?.holding}</td>
                     <td>Buy Value:</td>
                     <td> {value}</td>
                 </tr>
-                <tr className="my-table-row">
+                <tr className="coin-detail-table-row">
                     <td>Current price:</td>
                     <td>{coinTradeSummary?.actualPrice}</td>
                     <td>Average buy price:</td>
                     <td>{coinTradeSummary?.averageBuyPrice}</td>
                 </tr>
-                <tr className="my-table-row">
+                <tr className="coin-detail-table-row">
                     <td></td>
                     <td></td>
                     <td>Realised profit:</td>
@@ -108,30 +120,31 @@ export default function CoinDetail() {
 
     function coinTradesTable(): JSX.Element {
         return (
-            <div style={{width: '100%'}}>
-                <DataGrid
-                    rows={rows}
-                    columns={columns}
-                    initialState={{
-                        pagination: {
-                            paginationModel: {page: 0, pageSize: 50},
-                        },
-                        sorting: {
-                            sortModel: [{field: 'date', sort: 'desc'}],
-                        }
-                    }}
-                    pageSizeOptions={[50, 100]}
-                />
-
-            </div>
+            <DataGrid
+                rows={rows}
+                columns={columns}
+                initialState={{
+                    pagination: {
+                        paginationModel: {page: 0, pageSize: 50},
+                    },
+                    sorting: {
+                        sortModel: [{field: 'date', sort: 'desc'}],
+                    }
+                }}
+                pageSizeOptions={[50, 100]}
+            />
         )
     }
 
     return (
-        <div>
-            <h2>Coin detail</h2>
-            {headTable()}
-            {coinTradesTable()}
+
+        <div className={"centered-element-wrapper"}>
+            <div className={"centered-element"}>
+                <h2>Coin detail</h2>
+                {headTable()}
+                {coinTradesTable()}
+            </div>
         </div>
+
     );
 }

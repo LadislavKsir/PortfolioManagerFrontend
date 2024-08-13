@@ -149,7 +149,7 @@ export default function BinanceSummary(menuProps: MenuProps) {
 
 
     const listTradesSummaryParams: Parameter[] = [{key: "skipNotOwnedCoins", value: checked}]
-    const data = useFetch<CoinTradesSummaryResponse>(addParams('/binance/trades-summary', listTradesSummaryParams))
+    const data = useFetch<CoinTradesSummaryResponse>(addParams('/binance/v1/trades-summary', listTradesSummaryParams))
 
 
     const listTradesParams: Parameter[] = [{key: "pageSize", value: 10}]
@@ -199,6 +199,8 @@ export default function BinanceSummary(menuProps: MenuProps) {
         const pData = snapshots.map((x) => x.actualValue);
         const xLabels = snapshots.map((x) => new Date(x.dateTime).toLocaleString());
 
+        const cashflows = [20,30,40]
+
         return (
             <div className={"centered-element-wrapper"}>
                 <div className={"centered-element"}>
@@ -207,8 +209,13 @@ export default function BinanceSummary(menuProps: MenuProps) {
                         height={500}
                         series={[
                             {data: pData, label: 'Actual value'},
+                            // {data: cashflows, label: 'Cashflow'},
                         ]}
-                        xAxis={[{scaleType: 'point', data: xLabels}]}
+                        xAxis={[
+                            {scaleType: 'point', data: xLabels},
+
+                        ]}
+                        grid={{ vertical: true, horizontal: true }}
                     />
                 </div>
             </div>

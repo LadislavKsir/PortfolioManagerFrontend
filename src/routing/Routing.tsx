@@ -57,7 +57,7 @@ export default function Routing(menuProps: MenuProps) {
                        element={<PatriaSummary
                            setMenuComponentContent={menuProps.setMenuComponentContent}
                            setNavigationContent={menuProps.setNavigationContent}/>
-                }/>
+                       }/>
 
                 <Route path={INVESTOWN_SUMMARY_PATH} element={<InvestownSummary/>}/>
 
@@ -70,7 +70,10 @@ export default function Routing(menuProps: MenuProps) {
                        }
                 />
 
-                <Route path={BINANCE_COIN_DETAIL_PATH} element={<CoinDetail/>}/>
+                <Route path={BINANCE_COIN_DETAIL_PATH} element={<CoinDetail
+                    setMenuComponentContent={menuProps.setMenuComponentContent}
+                    setNavigationContent={menuProps.setNavigationContent}/>
+                }/>
 
 
                 <Route path="*" element={<NoMatch/>}/>
