@@ -13,3 +13,4 @@ export interface Trade {
     date: string
 }
 
+

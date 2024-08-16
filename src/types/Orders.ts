@@ -1,16 +1,18 @@
 export interface ListOrdersResponse {
-    orders: Order[]
+    data: TradeOrder[]
 }
-export interface Order {
+export interface TradeOrder {
     id: string,
-    orderId: string,
-    quoteId: string,
     from: string,
     to: string,
     sellQuantity: number,
     buyQuantity: number,
     price: number,
     inversePrice: number,
-    date: string
+    actualPrice: number,
+    date: string,
+    expireTime: string,
+    nearingExpiration: boolean
 }
+
 

@@ -12,6 +12,17 @@
 
 }
 
+.coin-icon-div{
+    /*display: flex;*/
+    /*justify-content: center;*/
+}
+
+.coin-icon{
+    width: 24px;
+    height: 24px;
+    margin-right:8px;
+}
+
 .header-bar {
     background-color: #888888;
     /*width: 2303px;*/
@@ -44,7 +55,7 @@
 
     /* example padding, font-size, background, etc */
     padding: 10px;
-    font-size: 20px;
+    /*font-size: 10px;*/
     /*background-color: lightskyblue;*/
 
 
@@ -96,6 +107,14 @@ body {
     font-weight: bold;
 }
 
+.grid-header-cell {
+    font-weight: bold;
+    font-size: medium;
+    /*background-color: rgba(118, 139, 253, 0.84);*/
+    background-color: rgb(46, 150, 255);
+    color: black;
+}
+
 .menu-table {
     width: -webkit-fill-available;
 }
@@ -122,6 +141,11 @@ body {
     color: red;
 }
 
+.nearing-expiration{
+    color: orange;
+    font-weight: bold;
+}
+
 .centered-element-wrapper {
     display: inline-block;
     /*display: flex;*/
@@ -135,3 +159,11 @@ body {
     /*display: flex;*/
 }
 
+.centered-element-without-padding {
+    display: inline-block;
+    /*display: flex;*/
+}
+
+.left-padding{
+    padding-left: 20px;
+}

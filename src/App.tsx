@@ -1,24 +1,14 @@
 import './App.css'
-import Divider from "@mui/material/Divider";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
-// import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-// import Typography from '@mui/material/Typography';
 
-import Box from "@mui/material/Box";
 import CssBaseline from "@mui/material/CssBaseline";
-import Drawer from "@mui/material/Drawer";
+import Box from "@mui/material/Box";
+
 import Routing from "./routing/Routing.tsx";
 
 import {JSX, useState} from "react";
-import {ListItemText} from "@mui/material";
-import MenuComponent from "./components/MenuComponent.tsx";
+import {createTheme, ThemeProvider} from '@mui/material/styles';
+import {AppDrawer} from "./components/AppDrawer.tsx";
 
-const drawerWidth = 240;
 
 export interface NavigationDefinition {
     text: string,
@@ -38,105 +28,56 @@ function App() {
     const [navigationContent, setNavigationContent] = useState<NavigationDefinition[]>([]);
 
 
-    // function headerBarToolbar(): JSX.Element {
-    //     return (
-    //         <Toolbar>
-    //             <Typography variant="h6" color="blue" component="div">
-    //                 <a href={"/home"}><p>Homepage</p></a>
-    //             </Typography>
-    //         </Toolbar>
-    //     )
-    // }
-    //
-    // function appBar(): JSX.Element {
-    //     return (
-    //         <AppBar
-    //             position="fixed"
-    //             sx={{
-    //                 width: `calc(100% - ${drawerWidth}px)`,
-    //                 ml: `${drawerWidth}px`,
-    //                 backgroundColor: "#1976d2",
-    //                 color: "#1976d2"
-    //
-    //             }}
-    //             className={"blue-background"}
-    //         >
-    //             {/*{headerBarToolbar()}*/}
-    //         </AppBar>
-    //     )
-    // }
-
-    function listItemButton(text: string, linkUrl: string): JSX.Element {
-        return (
-            <ListItem key={text} disablePadding>
-                <ListItemButton onClick={() => (window.location.href = linkUrl)}>
-                    <ListItemIcon>
-                        <InboxIcon/>
-                    </ListItemIcon>
-                    <ListItemText primary={text}/>
-                </ListItemButton>
-            </ListItem>
-        )
-    }
-
-    function fixedNavigationList(): JSX.Element {
-        return (
-            <List>
-                {listItemButton("Homepage", "/home")}
-            </List>
-        )
-    }
-
-    function contextualNavigationList(): JSX.Element {
-        return (
-            <List>
-                {navigationContent.map((def) => (
-                    <ListItem key={def.text} disablePadding>
-                        <ListItemButton onClick={() => (window.location.href = def.link)}>
-                            <ListItemIcon>
-                                <InboxIcon/>
-                            </ListItemIcon>
-                            <ListItemText primary={def.text}/>
-                        </ListItemButton>
-                    </ListItem>
-                ))}
-            </List>
-        )
-    }
+    const theme = createTheme({
+        palette: {
+            primary: {
+                main: '#3f51b5', // Customize your primary color
+            },
+            secondary: {
+                main: '#f50057', // Customize your secondary color
+            },
+            background: {
+                default: '#f5f5f5', // Light background for the main content
+            },
+        },
+        typography: {
+            fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+            h1: {
+                fontSize: '2rem',
+                fontWeight: 500,
+            },
+            body1: {
+                fontSize: '1rem',
+            },
+            fontSize: 12
+        },
+    });
 
 
     return (
-        <Box sx={{
-            display: 'flex',
-        }}>
-            <CssBaseline/>
-            {/*{appBar()}*/}
+        <ThemeProvider theme={theme}>
+            <Box sx={{
+                display: 'flex',
+            }}>
+                <CssBaseline/>
 
-            <Drawer
-                sx={{
-                    width: drawerWidth,
-                    flexShrink: 0,
-                    '& .MuiDrawer-paper': {
-                        width: drawerWidth,
-                        boxSizing: 'border-box',
-                    },
-                }}
-                variant="permanent"
-                anchor="left"
-            >
-                <Toolbar><p>Portfolio Manager v.2</p></Toolbar>
-                <Divider/>
-                {fixedNavigationList()}
-                <Divider/>
-                {contextualNavigationList()}
-                <MenuComponent content={menuComponentContent}></MenuComponent>
-            </Drawer>
+                <AppDrawer menuComponentContent={menuComponentContent}
+                           navigationContent={navigationContent}>
+                </AppDrawer>
 
 
-            <Box component="main" sx={{flexGrow: 1, bgcolor: 'background.default', p: 3}}>
-                <Routing setMenuComponentContent={setMenuComponentContent} setNavigationContent={setNavigationContent}/>
+                <Box component="main" sx={{
+                    flexGrow: 1,
+                    bgcolor: 'background.default',
+                    p: 3,
+                    // backgroundImage: 'linear-gradient(45deg, #3f51b5 30%, #f50057 90%)', // Example gradient
+                    borderRadius: '8px', // Rounded corners for a softer look
+                }}>
+                    <Routing setMenuComponentContent={setMenuComponentContent}
+                             setNavigationContent={setNavigationContent}/>
+                </Box>
             </Box>
-        </Box>
+        </ThemeProvider>
     );
 }
 
