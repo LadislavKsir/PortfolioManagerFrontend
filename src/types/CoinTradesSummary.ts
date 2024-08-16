@@ -7,45 +7,25 @@ export interface CoinTradesSummaryResponse {
 export interface CoinTradesSummary {
     id: string | undefined,
     coinCode: string,
-    holding: number,
-    averageBuyPrice: number,
-    unrealisedProfit: number,
+    holding: string,
+    averagePrice: string,
+    unrealisedProfitOrLoss: number,
     realisedProfit: number,
     actualPrice: number,
-    LastBuyTrade: LastBuyTrade
+    actualValue: number,
+    currentlyInvested: string,
+
+
 }
-
-export interface LastBuyTrade {
-    id: string,
-    date: string,
-    from: string,
-    to: string,
-    sellQuantity: number,
-    buyQuantity: number,
-    price: number,
-    inversePrice: number,
-    unrealisedProfit: number
-}
-
-
 // {
-//     "coinCode": "MATIC",
-//     "holding": 7.840749250000001,
-//     "averageBuyPrice": 1.0278683202661236,
-//     "unrealisedProfit": null,
-//     "lowestBuyPrice": 0.678049,
-//     "highestBuyPrice": 1.2564,
-//     "realisedProfit": 3.151188151237379,
-//     "lastBuyTrade": {
-//     "id": "a3129329-2dda-4e6c-80c2-41ef182c2a41",
-//         "date": "2024-05-10T15:41:08",
-//         "from": "USDT",
-//         "to": "MATIC",
-//         "sellQuantity": 0.05676794,
-//         "buyQuantity": 0.08372248,
-//         "price": 1.474819666425288,
-//         "inversePrice": 0.678049,
-//         "unrealisedProfit": null
-// },
-//     "actualPrice": null
+//     "coinCode": "ADA",
+//     "buyPriceSum": "14.35509068",
+//     "sellPriceSum": "4.01760911",
+//     "totalAmountBought": "26.56880114",
+//     "totalAmountSold": "5.44598126",
+//     "holding": "21.12281988",
+//     "currentlyInvested": "21.12281988",
+//     "averagePrice": "1.00000000",
+//     "actualPrice": 0.3438975695986304,
+//     "unrealisedProfitOrLoss": 13.858733460198366
 // },

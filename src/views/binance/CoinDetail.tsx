@@ -68,7 +68,7 @@ export default function CoinDetail(menuProps: MenuProps) {
     const params: Parameter[] = [{key: 'coinCodes', value: code}]
 
     const coinTrades = useFetch<ListTradesResponse>(addParams('/binance/trades', params))
-    const coinTradesSummary = useFetch<CoinTradesSummaryResponse>(addParams('/binance/trades-summary', params));
+    const coinTradesSummary = useFetch<CoinTradesSummaryResponse>(addParams('/binance/v2/trades-summary', params));
 
     if (coinTrades === undefined || coinTradesSummary === undefined) {
         return (<div></div>)
@@ -80,8 +80,8 @@ export default function CoinDetail(menuProps: MenuProps) {
         return (<div></div>)
     }
 
-    const value = coinTradeSummary.holding * coinTradeSummary.averageBuyPrice
-    const actualValue = coinTradeSummary.holding * coinTradeSummary.actualPrice
+    const value = coinTradeSummary.currentlyInvested
+    const actualValue = coinTradeSummary.actualValue
     const rows = coinTrades.trades
 
     function headTable(): JSX.Element {
@@ -104,7 +104,7 @@ export default function CoinDetail(menuProps: MenuProps) {
                     <td>Current price:</td>
                     <td>{coinTradeSummary?.actualPrice}</td>
                     <td>Average buy price:</td>
-                    <td>{coinTradeSummary?.averageBuyPrice}</td>
+                    <td>{coinTradeSummary?.averagePrice}</td>
                 </tr>
                 <tr className="coin-detail-table-row">
                     <td></td>
@@ -130,6 +130,9 @@ export default function CoinDetail(menuProps: MenuProps) {
                     sorting: {
                         sortModel: [{field: 'date', sort: 'desc'}],
                     }
+                }}
+                getRowClassName={(params) => {
+                    return (params.row.from ===  "USDT" || params.row.from ==="USDC") ? "profit": "loss";
                 }}
                 pageSizeOptions={[50, 100]}
             />

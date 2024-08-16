@@ -6,20 +6,35 @@ import {CoinTradesSummary, CoinTradesSummaryResponse} from "../../types/CoinTrad
 import {ListTradesResponse, Trade} from "../../types/Trade.ts";
 import {JSX, useEffect, useState} from "react";
 import addParams, {Parameter} from "../../utils/UrlBuilder.ts";
-import {Button,  TableContainer} from "@mui/material";
+import {Button, TableContainer} from "@mui/material";
 import {TradesSummarySnapshot} from "../../types/TradesSummarySnapshot.ts";
 import {LineChart} from "@mui/x-charts";
 import isStableCoin from "../../utils/StableCoins.ts";
 import {MenuProps, NavigationDefinition} from "../../App.tsx";
 
 function getCurrentPercent(row: CoinTradesSummary) {
-    const diff = (row.holding * row.actualPrice) / (row.holding * row.averageBuyPrice)
+    const diff = (row.currentlyInvested) / (row.actualValue)
     if (diff > 1) {
-        return (diff - 1) * 100
+        return -(diff - 1) * 100
     } else {
-        return -(1 - diff) * 100
+        return +(1 - diff) * 100
     }
 }
+
+//
+// {
+//     "coinCode": "ADA",
+//     "buyPriceSum": "14.35509068",
+//     "sellPriceSum": "4.01760911",
+//     "totalAmountBought": "26.56880114",
+//     "totalAmountSold": "5.44598126",
+//     "currentlyInvested": "10.33748157",
+//     "holding": "21.12281988",
+//     "actualValue": 7.255879141514035,
+//     "averagePrice": "0.48939875",
+//     "actualPrice": 0.34350901928507266,
+//     "unrealisedProfitOrLoss": 3.081602428485966
+// },
 
 const overviewTablecolumns: GridColDef[] = [
     {
@@ -28,21 +43,23 @@ const overviewTablecolumns: GridColDef[] = [
         type: 'string'
     },
     {
-        field: 'holding',
-        headerName: 'Holding',
-        type: 'number'
+        field: 'x',
+        headerName: '',
+        type: 'number',
+        width: 20,
+        valueGetter: (_, __: CoinTradesSummary) => "",
     },
     {
-        field: 'totalBuyPrice',
+        field: 'currentlyInvested',
         headerName: 'Buy value',
         description: '',
-        width: 180
+        valueGetter: (_, row: CoinTradesSummary) => parseFloat(row.currentlyInvested).toFixed(3),
     },
     {
-        field: 'Actual value',
+        field: 'actualValue',
         headerName: 'Actual value',
         type: 'number',
-        valueGetter: (_, row: CoinTradesSummary) => row.holding * row.actualPrice,
+        valueGetter: (_, row: CoinTradesSummary) => row.actualValue.toFixed(3),
     },
     {
         field: 'Actual %',
@@ -50,33 +67,39 @@ const overviewTablecolumns: GridColDef[] = [
         type: 'number',
         valueGetter: (_, row: CoinTradesSummary) => getCurrentPercent(row),
     },
+    {
+        field: 'xx',
+        headerName: '',
+        type: 'number',
+        valueGetter: (_, __: CoinTradesSummary) => "",
+    },
+    {
+        field: 'holding',
+        headerName: 'Holding',
+        type: 'number',
+        valueGetter: (_, row: CoinTradesSummary) => parseFloat(row.holding).toFixed(5),
+    },
 
     {
         field: 'actualPrice',
         headerName: 'Actual price',
         description: '',
-        width: 180
+        width: 180,
+        valueGetter: (_, row: CoinTradesSummary) => row.actualPrice.toFixed(3),
     },
-
     {
-        field: 'averageBuyPrice',
+        field: 'averagePrice',
         headerName: 'Average buy price',
         description: '',
-        width: 180
+        width: 180,
+        valueGetter: (_, row: CoinTradesSummary) => parseFloat(row.averagePrice).toFixed(3),
     },
     {
-        field: 'unrealisedProfit',
+        field: 'unrealisedProfitOrLoss',
         headerName: 'Unrealised Profit',
         description: '',
         width: 180
-    },
-    {
-        field: 'lowestBuyPrice',
-        headerName: 'Lowest buy price',
-        description: '',
-        width: 180,
-        headerClassName: "my-header"
-    },
+    }
 ];
 
 const lastTradesTableColumns: GridColDef[] = [
@@ -149,13 +172,13 @@ export default function BinanceSummary(menuProps: MenuProps) {
 
 
     const listTradesSummaryParams: Parameter[] = [{key: "skipNotOwnedCoins", value: checked}]
-    const data = useFetch<CoinTradesSummaryResponse>(addParams('/binance/v1/trades-summary', listTradesSummaryParams))
+    const data = useFetch<CoinTradesSummaryResponse>(addParams('/binance/v2/trades-summary', listTradesSummaryParams))
 
 
     const listTradesParams: Parameter[] = [{key: "pageSize", value: 10}]
     const trades = useFetch<ListTradesResponse>(addParams('/binance/trades', listTradesParams))
 
-    const snapshots: TradesSummarySnapshot[] = useFetch<TradesSummarySnapshot[]>('/binance/trades-summary-snapshots')
+    // const snapshots: TradesSummarySnapshot[] = useFetch<TradesSummarySnapshot[]>('/binance/trades-summary-snapshots')
 
     if (data === undefined || data.coinTrades === undefined) return (<div></div>)
 
@@ -175,14 +198,14 @@ export default function BinanceSummary(menuProps: MenuProps) {
                                     paginationModel: {page: 0, pageSize: 50},
                                 },
                                 sorting: {
-                                    sortModel: [{field: 'unrealisedProfit', sort: 'desc'}],
+                                    sortModel: [{field: 'unrealisedProfitOrLoss', sort: 'desc'}],
                                 }
                             }}
                             getRowId={(row: CoinTradesSummary) => {
                                 return row.coinCode;
                             }}
                             getRowClassName={(params) => {
-                                return params.row.unrealisedProfit > 0 ? "profit" : "loss";
+                                return params.row.unrealisedProfitOrLoss > 0 ? "profit" : "loss";
                             }}
                             onRowClick={rowClick}
                             pageSizeOptions={[50, 100]}
@@ -195,33 +218,33 @@ export default function BinanceSummary(menuProps: MenuProps) {
     }
 
 
-    function SimpleLineChart() {
-        const pData = snapshots.map((x) => x.actualValue);
-        const xLabels = snapshots.map((x) => new Date(x.dateTime).toLocaleString());
-
-        const cashflows = [20,30,40]
-
-        return (
-            <div className={"centered-element-wrapper"}>
-                <div className={"centered-element"}>
-                    <LineChart
-                        width={1580}
-                        height={500}
-                        series={[
-                            {data: pData, label: 'Actual value'},
-                            // {data: cashflows, label: 'Cashflow'},
-                        ]}
-                        xAxis={[
-                            {scaleType: 'point', data: xLabels},
-
-                        ]}
-                        grid={{ vertical: true, horizontal: true }}
-                    />
-                </div>
-            </div>
-
-        );
-    }
+    // function SimpleLineChart() {
+    //     const pData = snapshots.map((x) => x.actualValue);
+    //     const xLabels = snapshots.map((x) => new Date(x.dateTime).toLocaleString());
+    //
+    //     const cashflows = [20,30,40]
+    //
+    //     return (
+    //         <div className={"centered-element-wrapper"}>
+    //             <div className={"centered-element"}>
+    //                 <LineChart
+    //                     width={1580}
+    //                     height={500}
+    //                     series={[
+    //                         {data: pData, label: 'Actual value'},
+    //                         // {data: cashflows, label: 'Cashflow'},
+    //                     ]}
+    //                     xAxis={[
+    //                         {scaleType: 'point', data: xLabels},
+    //
+    //                     ]}
+    //                     grid={{ vertical: true, horizontal: true }}
+    //                 />
+    //             </div>
+    //         </div>
+    //
+    //     );
+    // }
 
     function lastTradesTable(): JSX.Element {
 
@@ -285,41 +308,12 @@ export default function BinanceSummary(menuProps: MenuProps) {
         )
     }
 
-
-    // function headTable(): JSX.Element {
-    //     return (
-    //         // <div className={"centered-element-wrapper"}>
-    //
-    //         // <div className={"centered-element"}>
-    //         <table className="menu-table">
-    //             <tbody>
-    //             <tr className="menu-table-row">
-    //                 <td>Invested:</td>
-    //                 <td>{data?.totalInvested}</td>
-    //                 <td></td>
-    //
-    //             </tr>
-    //             <tr className="menu-table-row">
-    //                 <td>Actual Value:</td>
-    //                 <td>{data?.totalActualValue}</td>
-    //                 <td></td>
-    //             </tr>
-    //             </tbody>
-    //         </table>
-    //         // </div>
-    //
-    //         // </div>
-    //
-    //
-    //     )
-    // }
-
     return (
 
         <div>
             <h2>Summary</h2>
 
-            {SimpleLineChart()}
+            {/*{SimpleLineChart()}*/}
 
             <h3>Overview</h3>
             {overviewTable()}
