@@ -1,5 +1,5 @@
 import {useParams} from "react-router-dom";
-import useFetch,  from "../../api/Api.ts";
+import useFetch, {useFetchDelete} from "../../api/Api.ts";
 import {DataGrid, GridColDef, GridRenderCellParams} from "@mui/x-data-grid";
 import addParams, {Parameter} from "../../utils/UrlBuilder.ts";
 import {JSX, useEffect} from "react";
@@ -20,14 +20,8 @@ export default function Orders(menuProps: MenuProps) {
 
     const buyColumns: GridColDef[] = [
         {
-            field: 'from',
-            headerName: 'From',
-            headerClassName: 'my-header',
-            type: 'string'
-        },
-        {
             field: 'to',
-            headerName: 'To',
+            headerName: 'Coin',
             type: 'string'
         },
         {
@@ -62,7 +56,7 @@ export default function Orders(menuProps: MenuProps) {
                 const onClick = (e) => {
                     e.stopPropagation(); // don't select this row after clicking
                     const order = params.row
-                    CancelOrder(order.to + order.from, order.orderId)
+                    CancelOrder(order.orderId)
                 };
 
                 return <Button onClick={onClick}>Delete</Button>;
@@ -74,13 +68,20 @@ export default function Orders(menuProps: MenuProps) {
     const sellColumns: GridColDef[] = [
         {
             field: 'from',
-            headerName: 'From',
+            headerName: 'Coin',
             headerClassName: 'my-header',
             type: 'string'
         },
         {
-            field: 'to',
-            headerName: 'To',
+            field: 'sellQuantity',
+            headerName: 'Qty',
+            headerClassName: 'my-header',
+            type: 'string'
+        },
+        {
+            field: 'buyQuantity',
+            headerName: 'Sell for $',
+            headerClassName: 'my-header',
             type: 'string'
         },
         {
@@ -133,17 +134,21 @@ export default function Orders(menuProps: MenuProps) {
     const buyOrders = useFetch<ListOrdersResponse>(addParams('/binance/orders', buyParams))
     const sellOrders = useFetch<ListOrdersResponse>(addParams('/binance/orders', sellParams))
 
-    if (buyOrders === undefined || sellOrders === undefined) {
+    if (buyOrders?.data === undefined || sellOrders?.data === undefined) {
         return (<div></div>)
     }
 
-    function CancelOrder(pair: string, orderId: string) {
-        const cancelOrderParams: Parameter[] = [{key: 'pair', value: pair}]
-        // useFetchDelete<ListOrdersResponse>(addParams('/orders/' + orderId, cancelOrderParams)).then(r => console.log(r));
+    // console.log("buyOrders")
+    // console.log(buyOrders)
+    //
+    // console.log("sellOrders")
+    // console.log(sellOrders)
+    //
+    function CancelOrder(orderId: string) {
+        useFetchDelete<ListOrdersResponse>('/orders/' + orderId).then(r => console.log(r));
     }
 
     function RenewOrder(pair: string, order: Order) {
-        const cancelOrderParams: Parameter[] = [{key: 'pair', value: pair}]
         // useFetchDelete<ListOrdersResponse>(addParams('/orders/' + orderId, cancelOrderParams)).then(r => console.log(r));
     }
 
@@ -156,14 +161,14 @@ export default function Orders(menuProps: MenuProps) {
                     <div style={{width: '100%'}}>
                         <h3>Buy orders</h3>
                         <DataGrid
-                            rows={buyOrders.orders}
+                            rows={buyOrders.data}
                             columns={buyColumns}
                             initialState={{
                                 pagination: {
                                     paginationModel: {page: 0, pageSize: 50},
                                 },
                                 sorting: {
-                                    sortModel: [{field: 'date', sort: 'desc'}],
+                                    sortModel: [{field: 'from', sort: 'asc'}],
                                 }
                             }}
                             getRowId={(row: Order) => {
@@ -178,14 +183,14 @@ export default function Orders(menuProps: MenuProps) {
                     <div style={{width: '100%'}}>
                         <h3>Sell orders</h3>
                         <DataGrid
-                            rows={sellOrders.orders}
+                            rows={sellOrders.data}
                             columns={sellColumns}
                             initialState={{
                                 pagination: {
                                     paginationModel: {page: 0, pageSize: 50},
                                 },
                                 sorting: {
-                                    sortModel: [{field: 'date', sort: 'desc'}],
+                                    sortModel: [{field: 'from', sort: 'asc'}],
                                 }
                             }}
                             getRowId={(row: Order) => {

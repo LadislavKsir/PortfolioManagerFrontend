@@ -7,6 +7,8 @@ import {JSX, useEffect} from "react";
 import isStableCoin from "../../utils/StableCoins.ts";
 import {useParams} from "react-router-dom";
 import {MenuProps, NavigationDefinition} from "../../App.tsx";
+import {LineChart} from "@mui/x-charts";
+import {TradesSummarySnapshot} from "../../types/TradesSummarySnapshot.ts";
 
 
 export default function CoinDetail(menuProps: MenuProps) {
@@ -68,7 +70,11 @@ export default function CoinDetail(menuProps: MenuProps) {
     const params: Parameter[] = [{key: 'coinCodes', value: code}]
 
     const coinTrades = useFetch<ListTradesResponse>(addParams('/binance/trades', params))
-    const coinTradesSummary = useFetch<CoinTradesSummaryResponse>(addParams('/binance/v2/trades-summary', params));
+    const coinTradesSummary = useFetch<CoinTradesSummaryResponse>(addParams('/binance/v1/trades-summary', params));
+
+    const snapshotsParams: Parameter[] = [{key: 'coinCodes', value: code},{key: 'onlyOverview', value: false}]
+    const snapshots: TradesSummarySnapshot[] = useFetch<TradesSummarySnapshot[]>(addParams('/binance/trades-summary-snapshots', snapshotsParams))
+
 
     if (coinTrades === undefined || coinTradesSummary === undefined) {
         return (<div></div>)
@@ -80,8 +86,37 @@ export default function CoinDetail(menuProps: MenuProps) {
         return (<div></div>)
     }
 
-    const value = coinTradeSummary.currentlyInvested
-    const actualValue = coinTradeSummary.actualValue
+    function SimpleLineChart() {
+        const actualValues = snapshots.map((x) => x.actualValue);
+        const invested = snapshots.map((x) => x.invested);
+        const xLabels = snapshots.map((x) => new Date(x.dateTime).toLocaleString());
+
+        const cashflows = [20, 30, 40]
+
+        return (
+            <div className={"centered-element-wrapper"}>
+                <div className={"centered-element"}>
+                    <LineChart
+                        width={1380}
+                        height={500}
+                        series={[
+                            {data: actualValues, label: 'Actual value'},
+                            {data: invested, label: 'Invested'},
+                        ]}
+                        xAxis={[
+                            {scaleType: 'point', data: xLabels},
+
+                        ]}
+                        grid={{vertical: true, horizontal: true}}
+                    />
+                </div>
+            </div>
+
+        );
+    }
+
+    // const value = coinTradeSummary.tot
+    const actualValue = coinTradeSummary.holding * coinTradeSummary.actualPrice
     const rows = coinTrades.trades
 
     function headTable(): JSX.Element {
@@ -98,13 +133,13 @@ export default function CoinDetail(menuProps: MenuProps) {
                     <td>Holding:</td>
                     <td>{coinTradeSummary?.holding}</td>
                     <td>Buy Value:</td>
-                    <td> {value}</td>
+                    <td> {coinTradeSummary?.totalBuyPrice}</td>
                 </tr>
                 <tr className="coin-detail-table-row">
                     <td>Current price:</td>
                     <td>{coinTradeSummary?.actualPrice}</td>
                     <td>Average buy price:</td>
-                    <td>{coinTradeSummary?.averagePrice}</td>
+                    <td>{coinTradeSummary?.averageBuyPrice}</td>
                 </tr>
                 <tr className="coin-detail-table-row">
                     <td></td>
@@ -145,6 +180,9 @@ export default function CoinDetail(menuProps: MenuProps) {
             <div className={"centered-element"}>
                 <h2>Coin detail</h2>
                 {headTable()}
+                {SimpleLineChart()}
+
+                <h4>Coin trades</h4>
                 {coinTradesTable()}
             </div>
         </div>

@@ -1,5 +1,5 @@
 export interface ListOrdersResponse {
-    orders: Order[]
+    data: Order[]
 }
 export interface Order {
     id: string,

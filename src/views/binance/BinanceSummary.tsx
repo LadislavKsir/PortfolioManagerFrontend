@@ -13,29 +13,13 @@ import isStableCoin from "../../utils/StableCoins.ts";
 import {MenuProps, NavigationDefinition} from "../../App.tsx";
 
 function getCurrentPercent(row: CoinTradesSummary) {
-    const diff = (row.currentlyInvested) / (row.actualValue)
+    const diff = (row.holding * row.actualPrice) / (row.holding * row.averageBuyPrice)
     if (diff > 1) {
-        return -(diff - 1) * 100
+        return (diff - 1) * 100
     } else {
-        return +(1 - diff) * 100
+        return -(1 - diff) * 100
     }
 }
-
-//
-// {
-//     "coinCode": "ADA",
-//     "buyPriceSum": "14.35509068",
-//     "sellPriceSum": "4.01760911",
-//     "totalAmountBought": "26.56880114",
-//     "totalAmountSold": "5.44598126",
-//     "currentlyInvested": "10.33748157",
-//     "holding": "21.12281988",
-//     "actualValue": 7.255879141514035,
-//     "averagePrice": "0.48939875",
-//     "actualPrice": 0.34350901928507266,
-//     "unrealisedProfitOrLoss": 3.081602428485966
-// },
-
 const overviewTablecolumns: GridColDef[] = [
     {
         field: 'coinCode',
@@ -43,23 +27,24 @@ const overviewTablecolumns: GridColDef[] = [
         type: 'string'
     },
     {
-        field: 'x',
-        headerName: '',
+        field: 'holding',
+        headerName: 'Holding',
         type: 'number',
-        width: 20,
-        valueGetter: (_, __: CoinTradesSummary) => "",
+        width: 130,
+        valueGetter: (_, row: CoinTradesSummary) => parseFloat(row.holding).toFixed(6),
     },
     {
-        field: 'currentlyInvested',
+        field: 'totalBuyPrice',
         headerName: 'Buy value',
         description: '',
-        valueGetter: (_, row: CoinTradesSummary) => parseFloat(row.currentlyInvested).toFixed(3),
+        type: 'number',
+        valueGetter: (_, row: CoinTradesSummary) => parseFloat(row.totalBuyPrice).toFixed(6),
     },
     {
-        field: 'actualValue',
+        field: 'Actual value',
         headerName: 'Actual value',
         type: 'number',
-        valueGetter: (_, row: CoinTradesSummary) => row.actualValue.toFixed(3),
+        valueGetter: (_, row: CoinTradesSummary) => row.holding * row.actualPrice,
     },
     {
         field: 'Actual %',
@@ -67,39 +52,45 @@ const overviewTablecolumns: GridColDef[] = [
         type: 'number',
         valueGetter: (_, row: CoinTradesSummary) => getCurrentPercent(row),
     },
-    {
-        field: 'xx',
-        headerName: '',
-        type: 'number',
-        valueGetter: (_, __: CoinTradesSummary) => "",
-    },
-    {
-        field: 'holding',
-        headerName: 'Holding',
-        type: 'number',
-        valueGetter: (_, row: CoinTradesSummary) => parseFloat(row.holding).toFixed(5),
-    },
 
     {
         field: 'actualPrice',
         headerName: 'Actual price',
         description: '',
         width: 180,
-        valueGetter: (_, row: CoinTradesSummary) => row.actualPrice.toFixed(3),
+        valueGetter: (_, row: CoinTradesSummary) => row.actualPrice.toFixed(5),
     },
+
     {
-        field: 'averagePrice',
+        field: 'averageBuyPrice',
         headerName: 'Average buy price',
         description: '',
         width: 180,
-        valueGetter: (_, row: CoinTradesSummary) => parseFloat(row.averagePrice).toFixed(3),
+        valueGetter: (_, row: CoinTradesSummary) => parseFloat(row.averageBuyPrice).toFixed(5),
     },
     {
-        field: 'unrealisedProfitOrLoss',
+        field: 'unrealisedProfit',
         headerName: 'Unrealised Profit',
         description: '',
-        width: 180
-    }
+        width: 180,
+        valueGetter: (_, row: CoinTradesSummary) => row.unrealisedProfit.toFixed(5),
+    },
+    {
+        field: 'lowestBuyPrice',
+        headerName: 'Lowest buy price',
+        description: '',
+        width: 180,
+        valueGetter: (_, row: CoinTradesSummary) => parseFloat(row.lowestBuyPrice).toFixed(5),
+        headerClassName: "my-header"
+    },
+    {
+        field: 'highestBuyPrice',
+        headerName: 'Highest buy price',
+        description: '',
+        width: 180,
+        valueGetter: (_, row: CoinTradesSummary) => parseFloat(row.highestBuyPrice).toFixed(5),
+        headerClassName: "my-header"
+    },
 ];
 
 const lastTradesTableColumns: GridColDef[] = [
@@ -172,13 +163,13 @@ export default function BinanceSummary(menuProps: MenuProps) {
 
 
     const listTradesSummaryParams: Parameter[] = [{key: "skipNotOwnedCoins", value: checked}]
-    const data = useFetch<CoinTradesSummaryResponse>(addParams('/binance/v2/trades-summary', listTradesSummaryParams))
+    const data = useFetch<CoinTradesSummaryResponse>(addParams('/binance/v1/trades-summary', listTradesSummaryParams))
 
 
     const listTradesParams: Parameter[] = [{key: "pageSize", value: 10}]
     const trades = useFetch<ListTradesResponse>(addParams('/binance/trades', listTradesParams))
 
-    // const snapshots: TradesSummarySnapshot[] = useFetch<TradesSummarySnapshot[]>('/binance/trades-summary-snapshots')
+    const snapshots: TradesSummarySnapshot[] = useFetch<TradesSummarySnapshot[]>('/binance/trades-summary-snapshots')
 
     if (data === undefined || data.coinTrades === undefined) return (<div></div>)
 
@@ -198,14 +189,14 @@ export default function BinanceSummary(menuProps: MenuProps) {
                                     paginationModel: {page: 0, pageSize: 50},
                                 },
                                 sorting: {
-                                    sortModel: [{field: 'unrealisedProfitOrLoss', sort: 'desc'}],
+                                    sortModel: [{field: 'Actual %', sort: 'desc'}],
                                 }
                             }}
                             getRowId={(row: CoinTradesSummary) => {
                                 return row.coinCode;
                             }}
                             getRowClassName={(params) => {
-                                return params.row.unrealisedProfitOrLoss > 0 ? "profit" : "loss";
+                                return params.row.unrealisedProfit > 0 ? "profit" : "loss";
                             }}
                             onRowClick={rowClick}
                             pageSizeOptions={[50, 100]}
@@ -218,33 +209,35 @@ export default function BinanceSummary(menuProps: MenuProps) {
     }
 
 
-    // function SimpleLineChart() {
-    //     const pData = snapshots.map((x) => x.actualValue);
-    //     const xLabels = snapshots.map((x) => new Date(x.dateTime).toLocaleString());
-    //
-    //     const cashflows = [20,30,40]
-    //
-    //     return (
-    //         <div className={"centered-element-wrapper"}>
-    //             <div className={"centered-element"}>
-    //                 <LineChart
-    //                     width={1580}
-    //                     height={500}
-    //                     series={[
-    //                         {data: pData, label: 'Actual value'},
-    //                         // {data: cashflows, label: 'Cashflow'},
-    //                     ]}
-    //                     xAxis={[
-    //                         {scaleType: 'point', data: xLabels},
-    //
-    //                     ]}
-    //                     grid={{ vertical: true, horizontal: true }}
-    //                 />
-    //             </div>
-    //         </div>
-    //
-    //     );
-    // }
+    function SimpleLineChart() {
+        const invested = snapshots.map((x) => x.invested);
+        const actualValues = snapshots.map((x) => x.actualValue);
+
+        const xLabels = snapshots.map((x) => new Date(x.dateTime).toLocaleString());
+
+        const cashflows = [20, 30, 40]
+
+        return (
+            <div className={"centered-element-wrapper"}>
+                <div className={"centered-element"}>
+                    <LineChart
+                        width={1780}
+                        height={500}
+                        series={[
+                            {data: invested, label: 'Invested'},
+                            {data: actualValues, label: 'Actual value'},
+                        ]}
+                        xAxis={[
+                            {scaleType: 'point', data: xLabels},
+
+                        ]}
+                        grid={{vertical: true, horizontal: true}}
+                    />
+                </div>
+            </div>
+
+        );
+    }
 
     function lastTradesTable(): JSX.Element {
 
@@ -313,7 +306,7 @@ export default function BinanceSummary(menuProps: MenuProps) {
         <div>
             <h2>Summary</h2>
 
-            {/*{SimpleLineChart()}*/}
+            {SimpleLineChart()}
 
             <h3>Overview</h3>
             {overviewTable()}
