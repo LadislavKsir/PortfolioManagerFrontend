@@ -25,7 +25,7 @@ export default function Orders(menuProps: MenuProps) {
             headerName: 'Coin',
             type: 'string',
             width: 130,
-            valueGetter: (_, row: Order) => row.to + " -> " + row.from,
+            valueGetter: (_, row: Order) => row.from + " -> " + row.to,
         },
         {
             field: 'buyQuantity',
@@ -40,7 +40,7 @@ export default function Orders(menuProps: MenuProps) {
             type: 'string'
         },
         {
-            field: 'price',
+            field: 'inversePrice',
             headerName: 'Price',
             type: 'number'
         },
@@ -53,9 +53,11 @@ export default function Orders(menuProps: MenuProps) {
             field: 'expireTime',
             headerName: 'expireTime',
             type: 'dateTime',
-            valueGetter: (_, row: Order) => new Date(row.expireTime),
-            cellClassName: (params: GridCellParams<never, Date>) => {
-                return nearingExpiration(params.value!) ? "nearing-expiration" : ""
+            valueGetter: (_, row: Order) => {
+                add30Days(row.date)
+            },
+            cellClassName: (params: GridCellParams<never, string>) => {
+                return nearingExpiration(params.date!) ? "nearing-expiration" : ""
             }
         },
         {
@@ -88,6 +90,12 @@ export default function Orders(menuProps: MenuProps) {
         },
     ];
 
+
+    function add30Days(dateAsString: string): Date {
+        const date = new Date(dateAsString);
+        date.setDate(date.getDate() + 30);
+        return date
+    }
 
     const sellColumns: GridColDef[] = [
         {
@@ -124,8 +132,10 @@ export default function Orders(menuProps: MenuProps) {
             field: 'expireTime',
             headerName: 'expireTime',
             type: 'dateTime',
-            valueGetter: (_, row: Order) => new Date(row.expireTime),
-            cellClassName: (params: GridCellParams<never, Date>) => {
+            valueGetter: (_, row: Order) => {
+                add30Days(row.date)
+            },
+            cellClassName: (params: GridCellParams<never, string>) => {
                 return nearingExpiration(params.value!) ? "nearing-expiration" : ""
             }
         },
@@ -173,7 +183,9 @@ export default function Orders(menuProps: MenuProps) {
         return (<div></div>)
     }
 
-    function nearingExpiration(date: Date): boolean {
+    function nearingExpiration(timestamp: string): boolean {
+        const date = new Date(timestamp);
+        date.setDate(date.getDate() + 30);
         return Math.round((date - Date.now()) / (1000 * 3600 * 24)) <= 3
 
     }
