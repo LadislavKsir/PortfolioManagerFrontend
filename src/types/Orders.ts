@@ -10,7 +10,9 @@ export interface Order {
     sellQuantity: number,
     buyQuantity: number,
     price: number,
+    actualPrice: number,
     inversePrice: number,
-    date: string
+    date: string,
+    expireTime: string
 }
 

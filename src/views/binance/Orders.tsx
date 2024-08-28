@@ -1,11 +1,12 @@
 import {useParams} from "react-router-dom";
-import useFetch, {useFetchDelete} from "../../api/Api.ts";
-import {DataGrid, GridColDef, GridRenderCellParams} from "@mui/x-data-grid";
+import useFetch, {useFetchDelete, useFetchPost} from "../../api/Api.ts";
+import {DataGrid, GridCellParams, GridColDef, GridRenderCellParams} from "@mui/x-data-grid";
 import addParams, {Parameter} from "../../utils/UrlBuilder.ts";
 import {JSX, useEffect} from "react";
 import {ListOrdersResponse, Order} from "../../types/Orders.ts";
 import {Button} from "@mui/material";
 import {MenuProps, NavigationDefinition} from "../../App.tsx";
+import {Trade} from "../../types/Trade.ts";
 
 export default function Orders(menuProps: MenuProps) {
 
@@ -22,10 +23,24 @@ export default function Orders(menuProps: MenuProps) {
         {
             field: 'to',
             headerName: 'Coin',
+            type: 'string',
+            width: 130,
+            valueGetter: (_, row: Order) => row.to + " -> " + row.from,
+        },
+        {
+            field: 'buyQuantity',
+            headerName: 'Qty',
+            headerClassName: 'my-header',
             type: 'string'
         },
         {
-            field: 'inversePrice',
+            field: 'sellQuantity',
+            headerName: 'Cost $',
+            headerClassName: 'my-header',
+            type: 'string'
+        },
+        {
+            field: 'price',
             headerName: 'Price',
             type: 'number'
         },
@@ -35,6 +50,15 @@ export default function Orders(menuProps: MenuProps) {
             type: 'number'
         },
         {
+            field: 'expireTime',
+            headerName: 'expireTime',
+            type: 'dateTime',
+            valueGetter: (_, row: Order) => new Date(row.expireTime),
+            cellClassName: (params: GridCellParams<never, Date>) => {
+                return nearingExpiration(params.value!) ? "nearing-expiration" : ""
+            }
+        },
+        {
             field: "renew",
             headerName: "Renew",
             sortable: false,
@@ -42,7 +66,7 @@ export default function Orders(menuProps: MenuProps) {
                 const onClick = (e) => {
                     e.stopPropagation(); // don't select this row after clicking
                     const order = params.row
-                    RenewOrder(order.to + order.from, order)
+                    RenewOrder(order.orderId)
                 };
 
                 return <Button onClick={onClick}>Renew</Button>;
@@ -70,7 +94,9 @@ export default function Orders(menuProps: MenuProps) {
             field: 'from',
             headerName: 'Coin',
             headerClassName: 'my-header',
-            type: 'string'
+            type: 'string',
+            width: 130,
+            valueGetter: (_, row: Order) => row.from + " -> " + row.to,
         },
         {
             field: 'sellQuantity',
@@ -95,6 +121,15 @@ export default function Orders(menuProps: MenuProps) {
             type: 'number'
         },
         {
+            field: 'expireTime',
+            headerName: 'expireTime',
+            type: 'dateTime',
+            valueGetter: (_, row: Order) => new Date(row.expireTime),
+            cellClassName: (params: GridCellParams<never, Date>) => {
+                return nearingExpiration(params.value!) ? "nearing-expiration" : ""
+            }
+        },
+        {
             field: "renew",
             headerName: "Renew",
             sortable: false,
@@ -102,7 +137,7 @@ export default function Orders(menuProps: MenuProps) {
                 const onClick = (e) => {
                     e.stopPropagation(); // don't select this row after clicking
                     const order: Order = params.row;
-                    RenewOrder(order.from + order.to, order)
+                    RenewOrder(order.orderId)
                 };
 
                 return <Button onClick={onClick}>Renew</Button>;
@@ -116,7 +151,7 @@ export default function Orders(menuProps: MenuProps) {
                 const onClick = (e) => {
                     e.stopPropagation(); // don't select this row after clicking
                     const order: Order = params.row;
-                    CancelOrder(order.from + order.to, order.orderId)
+                    CancelOrder(order.orderId)
                 };
 
                 return <Button onClick={onClick}>Delete</Button>;
@@ -138,20 +173,23 @@ export default function Orders(menuProps: MenuProps) {
         return (<div></div>)
     }
 
-    // console.log("buyOrders")
-    // console.log(buyOrders)
-    //
-    // console.log("sellOrders")
-    // console.log(sellOrders)
-    //
+    function nearingExpiration(date: Date): boolean {
+        return Math.round((date - Date.now()) / (1000 * 3600 * 24)) <= 3
+
+    }
+
     function CancelOrder(orderId: string) {
-        useFetchDelete<ListOrdersResponse>('/orders/' + orderId).then(r => console.log(r));
+        useFetchDelete<ListOrdersResponse>('/binance/orders/' + orderId).then(r => console.log(r));
     }
 
-    function RenewOrder(pair: string, order: Order) {
-        // useFetchDelete<ListOrdersResponse>(addParams('/orders/' + orderId, cancelOrderParams)).then(r => console.log(r));
+    function RenewOrder(orderId: string) {
+        useFetchPost<ListOrdersResponse>('/binance/orders/' + orderId, {}).then(r => console.log(r));
     }
 
+
+    function pricesNear(row: Order): boolean {
+        return (1 - (row.actualPrice / row.price)) <= 0.025
+    }
 
     function ordersTable(): JSX.Element {
         return (
@@ -171,6 +209,9 @@ export default function Orders(menuProps: MenuProps) {
                                     sortModel: [{field: 'from', sort: 'asc'}],
                                 }
                             }}
+                            // getRowClassName={(params) => {
+                            //     return pricesNear(params.row) > 0 ? "profit" : "";
+                            // }}
                             getRowId={(row: Order) => {
                                 return row.from + row.to + row.date;
                             }}
@@ -192,6 +233,9 @@ export default function Orders(menuProps: MenuProps) {
                                 sorting: {
                                     sortModel: [{field: 'from', sort: 'asc'}],
                                 }
+                            }}
+                            getRowClassName={(params) => {
+                                return pricesNear(params.row) > 0 ? "profit" : "";
                             }}
                             getRowId={(row: Order) => {
                                 return row.from + row.to + row.date;

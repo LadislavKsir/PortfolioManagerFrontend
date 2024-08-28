@@ -122,6 +122,11 @@ body {
     color: red;
 }
 
+.nearing-expiration{
+    color: orange;
+    font-weight: bold;
+}
+
 .centered-element-wrapper {
     display: inline-block;
     /*display: flex;*/
