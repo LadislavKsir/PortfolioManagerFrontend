@@ -12,9 +12,6 @@ import InvestownSummary from "../views/investown/InvestownSummary.tsx";
 import MainSummary from "../views/MainSummary.tsx";
 import {MenuProps} from "../App.tsx";
 import LockedSubscriptions from "../views/binance/LockedSubscriptions.tsx";
-// import * as routingConstants from 'RoutingConstants.js';
-// import * as routingConstants from '../routing/RoutingConstants.js';
-
 /**
  * This component sets and manages routing in the application
  */
@@ -46,19 +43,14 @@ export default function Routing(menuProps: MenuProps) {
                 <Route path={SUMMARY_PATH} element={<MainSummary/>}/>
 
                 <Route path={BINANCE_SUMMARY_PATH} element={
-                    <BinanceSummary
-                        setMenuComponentContent={menuProps.setMenuComponentContent}
-                        setNavigationContent={menuProps.setNavigationContent}
-                    />
+                    <BinanceSummary {...menuProps} />
                 }/>
 
                 {/*<Route path={BINANCE_SUMMARY_PATH} element={<BinanceSummary/>}/>*/}
                 <Route path={PORTU_SUMMARY_PATH} element={<PortuSummary/>}/>
 
                 <Route path={PATRIA_SUMMARY_PATH}
-                       element={<PatriaSummary
-                           setMenuComponentContent={menuProps.setMenuComponentContent}
-                           setNavigationContent={menuProps.setNavigationContent}/>
+                       element={<PatriaSummary  {...menuProps} />
                        }/>
 
                 <Route path={INVESTOWN_SUMMARY_PATH} element={<InvestownSummary/>}/>
@@ -67,21 +59,17 @@ export default function Routing(menuProps: MenuProps) {
                 <Route path={BINANCE_COINS_PATH} element={<Coins/>}/>
                 <Route path={BINANCE_ORDERS_PATH}
                        element={
-                           <Orders setMenuComponentContent={menuProps.setMenuComponentContent}
-                                   setNavigationContent={menuProps.setNavigationContent}/>
+                           <Orders  {...menuProps} />
                        }
                 />
 
                 <Route path={BINANCE_EARN_PATH}
                        element={
-                           <LockedSubscriptions setMenuComponentContent={menuProps.setMenuComponentContent}
-                                                setNavigationContent={menuProps.setNavigationContent}/>
+                           <LockedSubscriptions  {...menuProps} />
                        }
                 />
 
-                <Route path={BINANCE_COIN_DETAIL_PATH} element={<CoinDetail
-                    setMenuComponentContent={menuProps.setMenuComponentContent}
-                    setNavigationContent={menuProps.setNavigationContent}/>
+                <Route path={BINANCE_COIN_DETAIL_PATH} element={<CoinDetail {...menuProps} />
                 }/>
 
 

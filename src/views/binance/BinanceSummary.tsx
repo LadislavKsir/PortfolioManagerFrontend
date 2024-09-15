@@ -22,9 +22,6 @@ export default function BinanceSummary(menuProps: MenuProps) {
     const navigate = useNavigate();
 
     const [checked, _] = useState(true);
-    const [modalIsOpen, setModalIsOpen] = useState(false);
-    const [apiResponse, setApiResponse] = useState<SyncResultResponse | null>(null);
-
 
     useEffect(() => {
         menuProps.setMenuComponentContent(contextualMenuComponent());
@@ -149,12 +146,14 @@ export default function BinanceSummary(menuProps: MenuProps) {
     function syncButton() {
         function handleClick() {
             useFetchPost<SyncResultResponse>("/binance/trades/sync", {})
-                .then(r => {
-                    setApiResponse(r);
-                    setModalIsOpen(true);
-                    // alert(r)
+                .then(response => {
+                    menuProps.dialogProps.content(renderResults(response))
+                    menuProps.dialogProps.openClose(true)
                 })
-                .catch(err => console.error(err));
+                .catch(err => {
+                    menuProps.dialogProps.content(<div>{err}</div>)
+                    menuProps.dialogProps.openClose(true)
+                });
         }
 
         return (
@@ -162,7 +161,7 @@ export default function BinanceSummary(menuProps: MenuProps) {
         );
     }
 
-    function renderResults() {
+    function renderResults(apiResponse: SyncResultResponse) {
         if (!apiResponse) return null;
 
         const {earnHistory, convertHistory} = apiResponse;
@@ -224,22 +223,6 @@ export default function BinanceSummary(menuProps: MenuProps) {
         )
     }
 
-    function syncResultsDialog(): JSX.Element {
-        return (
-            <Dialog open={modalIsOpen} onClose={() => setModalIsOpen(false)}>
-                <DialogTitle>Sync Results</DialogTitle>
-                <DialogContent>
-                    {renderResults()}
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setModalIsOpen(false)} color="primary">
-                        Close
-                    </Button>
-                </DialogActions>
-            </Dialog>
-        )
-    }
-
     return (
 
         <div>
@@ -252,8 +235,6 @@ export default function BinanceSummary(menuProps: MenuProps) {
 
             <h3>Last trades</h3>
             {lastTradesTable()}
-
-            {syncResultsDialog()}
         </div>
     );
 }
