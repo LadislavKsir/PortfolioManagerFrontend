@@ -1,32 +1,41 @@
-import {useParams} from "react-router-dom";
 import useFetch, {useFetchDelete, useFetchPost} from "../../api/Api.ts";
 import {DataGrid, GridCellParams, GridColDef, GridRenderCellParams, GridValidRowModel} from "@mui/x-data-grid";
 import addParams, {Parameter} from "../../utils/UrlBuilder.ts";
 import {JSX, useEffect, useState} from "react";
 import {ListOrdersResponse, TradeOrder} from "../../types/Orders.ts";
 import {FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Tab, Tabs} from "@mui/material";
-import {MenuProps, NavigationDefinition} from "../../App.tsx";
-import { formatDateTime} from "../../utils/DateFormatter.ts";
+import {MenuProps} from "../../App.tsx";
+import {formatDateTime} from "../../utils/DateFormatter.ts";
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import RefreshOutlinedIcon from '@mui/icons-material/RefreshOutlined';
 import LoadingComponent from "../../components/LoadingComponent.tsx";
+import {fetchOkNotification} from "../../utils/NotificationsHelper.ts";
+import SyncButton  from "../../components/SyncButton.tsx";
+import {binanceNavigation} from "../../routing/NavigationDefinitionFactory.tsx";
+import CoinSelect from "../../components/CoinSelect.tsx";
 
 export default function Orders(menuProps: MenuProps) {
-    const {code} = useParams();
-
-    useEffect(() => {
-        const navigationContent: NavigationDefinition[] = [
-            {text: "Summary", link: "/binance/summary"},
-            {text: "Orders", link: "/binance/orders"},
-            {text: "Coins", link: "/binance/coins"},
-            {text: "Earn", link: "/binance/locked-subscriptions"},
-        ]
-        menuProps.setNavigationContent(navigationContent)
-    }, []);
+    // const {code} = useParams();
 
     const [statusSelectValue, setStatusSelectValue] = useState<string | undefined>('PROCESS');
-
     const [activeTab, setActiveTab] = useState(1);
+    const [selectedCoin, setSelectedCoin] = useState<string>("ALL");
+
+
+    useEffect(() => {
+        menuProps.setMenuComponentContent(
+            (
+                <div>
+                    <SyncButton content={menuProps.dialogProps.content}
+                                openClose={menuProps.dialogProps.openClose}>
+                    </SyncButton>
+                </div>
+            )
+        );
+        menuProps.setNavigationContent(binanceNavigation())
+    }, []);
+
+
 
     const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
         setActiveTab(newValue);
@@ -126,13 +135,6 @@ export default function Orders(menuProps: MenuProps) {
     }));
 
     const sellColumns: GridColDef[] = [
-        // {
-        //     field: 'from',
-        //     headerName: 'Coin',
-        //     type: 'string',
-        //     width: 130,
-        //     valueGetter: (_: never, row: TradeOrder) => row.from + " -> " + row.to,
-        // },
         {
             field: 'coinCodex',
             headerName: 'Coin',
@@ -242,14 +244,14 @@ export default function Orders(menuProps: MenuProps) {
     }));
 
     const buyParams: Parameter[] = [
-        {key: 'coinCodes', value: code},
+        {key: 'coinCodes', value: selectedCoin},
         {key: 'type', value: "BUY"},
         {key: 'statuses', value: statusSelectValue}
     ]
     const sellParams: Parameter[] = [
-        {key: 'coinCodes', value: code},
+        {key: 'coinCodes', value: selectedCoin},
         {key: 'type', value: "SELL"},
-        {key: 'statuses', value: statusSelectValue}
+        {key: 'statuses', value: statusSelectValue},
     ]
 
     const buyOrders = useFetch<ListOrdersResponse>(addParams('/binance/orders', buyParams))
@@ -260,7 +262,8 @@ export default function Orders(menuProps: MenuProps) {
     }
 
     function RenewOrder(orderId: string) {
-        useFetchPost<ListOrdersResponse>('/binance/orders/' + orderId, {}).then(r => console.log(r));
+        useFetchPost<ListOrdersResponse>('/binance/orders/' + orderId, {}).then(() => fetchOkNotification());
+
     }
 
 
@@ -284,7 +287,7 @@ export default function Orders(menuProps: MenuProps) {
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
                     value={statusSelectValue}
-                    label="Age"
+                    label="Status"
                     onChange={handleOrderStatusSelectChange}
                 >
                     <MenuItem value={'FAIL'}>Failed/Cancelled</MenuItem>
@@ -296,69 +299,6 @@ export default function Orders(menuProps: MenuProps) {
         )
     }
 
-    // function ordersTable(): JSX.Element {
-    //     return (
-    //         <div>
-    //             <div className={"centered-element-wrapper"}>
-    //                 <div className={"centered-element"}>
-    //                     {orderStatusSelect()}
-    //                 </div>
-    //             </div>
-    //             <div className={"centered-element-wrapper"}>
-    //                 <div className={"centered-element-without-padding"}>
-    //                     <div style={{width: '100%'}}>
-    //                         <h3>Buy orders</h3>
-    //                         <DataGrid
-    //                             rows={buyOrders.data}
-    //                             columns={buyColumns}
-    //                             initialState={{
-    //                                 pagination: {
-    //                                     paginationModel: {page: 0, pageSize: 100},
-    //                                 },
-    //                                 sorting: {
-    //                                     sortModel: [{field: 'from', sort: 'asc'}],
-    //                                 }
-    //                             }}
-    //                             getRowClassName={(params) => {
-    //                                 return pricesNearBuy(params.row) ? "profit" : "";
-    //                             }}
-    //                             getRowId={(row: TradeOrder) => {
-    //                                 return row.from + row.to + row.date;
-    //                             }}
-    //                             pageSizeOptions={[50, 100]}
-    //                         />
-    //
-    //                     </div>
-    //                 </div>
-    //                 <div className={"centered-element-without-padding left-padding"}>
-    //                     <div style={{width: '100%'}}>
-    //                         <h3>Sell orders</h3>
-    //                         <DataGrid
-    //                             rows={sellOrders.data}
-    //                             columns={sellColumns}
-    //                             initialState={{
-    //                                 pagination: {
-    //                                     paginationModel: {page: 0, pageSize: 100},
-    //                                 },
-    //                                 sorting: {
-    //                                     sortModel: [{field: 'from', sort: 'asc'}],
-    //                                 }
-    //                             }}
-    //                             getRowClassName={(params) => {
-    //                                 return pricesNearSell(params.row) ? "profit" : "";
-    //                             }}
-    //                             getRowId={(row: TradeOrder) => {
-    //                                 return row.from + row.to + row.date;
-    //                             }}
-    //                             pageSizeOptions={[100, 200]}
-    //                         />
-    //
-    //                     </div>
-    //                 </div>
-    //             </div>
-    //         </div>
-    //     )
-    // }
     function ordersTable(): JSX.Element {
 
         if (buyOrders === undefined || sellOrders === undefined) {
@@ -370,6 +310,9 @@ export default function Orders(menuProps: MenuProps) {
                 <div className={"centered-element-wrapper"}>
                     <div className={"centered-element"}>
                         {orderStatusSelect()}
+                    </div>
+                    <div className={"centered-element"}>
+                        <CoinSelect selectedCoin={selectedCoin} onCoinSelect={setSelectedCoin} />
                     </div>
                 </div>
                 <Tabs value={activeTab} onChange={handleTabChange} centered>

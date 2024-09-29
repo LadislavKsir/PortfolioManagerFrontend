@@ -9,7 +9,8 @@ import {useParams} from "react-router-dom";
 import {MenuProps, NavigationDefinition} from "../../App.tsx";
 import {LineChart} from "@mui/x-charts";
 import {TradesSummarySnapshot} from "../../types/TradesSummarySnapshot.ts";
-import { formatDateTime, formatDateTimeString} from "../../utils/DateFormatter.ts";
+import {formatDateTime, formatDateTimeString} from "../../utils/DateFormatter.ts";
+import LoadingComponent from "../../components/LoadingComponent.tsx";
 
 export default function CoinDetail(menuProps: MenuProps) {
 
@@ -190,6 +191,51 @@ export default function CoinDetail(menuProps: MenuProps) {
         )
     }
 
+    function tradePricesChart() {
+        if (snapshots === undefined) {
+            return (<LoadingComponent/>)
+        }
+
+        const data = rows.sort(function (a, b) {
+            return (new Date(b.date).valueOf() - new Date(a.date).valueOf());
+        }).reverse()
+
+        const buys: (number | null)[] = []
+        const sells: (number | null)[] = []
+        const labels: (string)[] = []
+
+        data.forEach((trade: Trade) => {
+            if (trade.from === "USDT" || trade.from === "USDC") {
+                buys.push(trade.inversePrice)
+                sells.push(null)
+            } else {
+                buys.push(null)
+                sells.push(trade.price)
+            }
+            labels.push(formatDateTimeString(trade.date))
+        })
+
+        return (
+            <div className={"centered-element-wrapper"}>
+                <div className={"centered-element"}>
+                    <LineChart
+                        width={1280}
+                        height={500}
+                        series={[
+                            {data: buys, label: 'Buy'},
+                            {data: sells, label: 'Sell'},
+                        ]}
+                        xAxis={[
+                            {scaleType: 'point', data: labels},
+
+                        ]}
+                        grid={{vertical: true, horizontal: true}}
+                    />
+                </div>
+            </div>
+        );
+    }
+
     return (
 
         <div className={"centered-element-wrapper"}>
@@ -197,6 +243,7 @@ export default function CoinDetail(menuProps: MenuProps) {
                 <h2>Coin detail</h2>
                 {headTable()}
                 {SimpleLineChart()}
+                {tradePricesChart()}
 
                 <h4>Coin trades</h4>
                 {coinTradesTable()}

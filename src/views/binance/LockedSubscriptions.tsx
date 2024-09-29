@@ -1,22 +1,28 @@
 import useFetch from "../../api/Api.ts";
 import {DataGrid, GridColDef, GridRenderCellParams} from "@mui/x-data-grid";
 import {JSX, useEffect} from "react";
-import {MenuProps, NavigationDefinition} from "../../App.tsx";
+import {MenuProps} from "../../App.tsx";
 import {DataResponse} from "../../types/DataResponse.ts";
 import {LockedSubscription} from "../../types/LockedSubscription.ts";
 import {formatDate} from "../../utils/DateFormatter.ts";
 import LoadingComponent from "../../components/LoadingComponent.tsx";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import SyncButton from "../../components/SyncButton.tsx";
+import {binanceNavigation} from "../../routing/NavigationDefinitionFactory.tsx";
 
 export default function LockedSubscriptions(menuProps: MenuProps) {
 
     useEffect(() => {
-        const navigationContent: NavigationDefinition[] = [
-            {text: "Summary", link: "/binance/summary"},
-            {text: "Orders", link: "/binance/orders"},
-            {text: "Coins", link: "/binance/coins"},
-        ]
-        menuProps.setNavigationContent(navigationContent)
+        menuProps.setMenuComponentContent(
+            (
+                <div>
+                    <SyncButton content={menuProps.dialogProps.content}
+                                openClose={menuProps.dialogProps.openClose}>
+                    </SyncButton>
+                </div>
+            )
+        );
+        menuProps.setNavigationContent(binanceNavigation())
     }, []);
 
 
@@ -42,12 +48,6 @@ export default function LockedSubscriptions(menuProps: MenuProps) {
 
             }
         },
-        // {
-        //     field: 'coinCode',
-        //     headerName: 'Coin',
-        //
-        //     type: 'string'
-        // },
         {
             field: 'time',
             headerName: 'Date',
@@ -97,23 +97,18 @@ export default function LockedSubscriptions(menuProps: MenuProps) {
 
             }
         },
-        // {
-        //     field: 'priceWhenLocked',
-        //     headerName: 'priceWhenLocked',
-        //
-        //     type: 'string'
-        // },
-        // {
-        //     field: 'priceWhenFinished',
-        //     headerName: 'priceWhenFinished',
-        //
-        //     type: 'string'
-        // },
+
         {
             field: 'totalEarned',
             headerName: 'Earned',
 
             type: 'string'
+        }, {
+            width: 160,
+            field: 'resultStatus',
+            headerName: 'Final status',
+            type: 'string',
+
         },
 
     ];
@@ -151,7 +146,6 @@ export default function LockedSubscriptions(menuProps: MenuProps) {
             <div className={"centered-element"}>
                 <h2>Locked Subscriptions</h2>
                 {/*{headTable()}*/}
-
                 {lockedSubscriptionsTable()}
             </div>
         </div>

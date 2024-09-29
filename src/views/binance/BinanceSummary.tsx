@@ -1,4 +1,4 @@
-import useFetch, {useFetchPost} from "../../api/Api.ts"
+import useFetch from "../../api/Api.ts"
 import {DataGrid, GridRowParams} from "@mui/x-data-grid";
 
 import {useNavigate} from "react-router-dom";
@@ -6,16 +6,18 @@ import {CoinTradesSummary, CoinTradesSummaryResponse} from "../../types/CoinTrad
 import {ListTradesResponse} from "../../types/Trade.ts";
 import {JSX, useEffect, useState} from "react";
 import addParams, {Parameter} from "../../utils/UrlBuilder.ts";
-import {Button, Dialog, DialogActions, DialogContent, DialogTitle, TableContainer} from "@mui/material";
+import {TableContainer} from "@mui/material";
 import {TradesSummarySnapshot} from "../../types/TradesSummarySnapshot.ts";
 import {LineChart} from "@mui/x-charts";
 import isStableCoin from "../../utils/StableCoins.ts";
-import {MenuProps, NavigationDefinition} from "../../App.tsx";
+import {MenuProps} from "../../App.tsx";
 import LoadingComponent from "../../components/LoadingComponent.tsx";
 
 import {formatDateTimeString} from "../../utils/DateFormatter.ts";
 import {lastTradesTableColumns, overviewTablecolumns} from "./BinanceSummaryTableDefinitions.tsx";
-import SyncResultResponse from "../../types/SyncResultResponse.tsx"; // Add this import
+import {binanceNavigation} from "../../routing/NavigationDefinitionFactory.tsx";
+import SyncButton from "../../components/SyncButton.tsx";
+
 
 export default function BinanceSummary(menuProps: MenuProps) {
 
@@ -24,15 +26,14 @@ export default function BinanceSummary(menuProps: MenuProps) {
     const [checked, _] = useState(true);
 
     useEffect(() => {
-        menuProps.setMenuComponentContent(contextualMenuComponent());
-
-        const navigationContent: NavigationDefinition[] = [
-            {text: "Summary", link: "/binance/summary"},
-            {text: "Orders", link: "/binance/orders"},
-            {text: "Coins", link: "/binance/coins"},
-            {text: "Earn", link: "/binance/locked-subscriptions"},
-        ]
-        menuProps.setNavigationContent(navigationContent)
+        menuProps.setMenuComponentContent(
+            <div>
+                <SyncButton content={menuProps.dialogProps.content}
+                            openClose={menuProps.dialogProps.openClose}>
+                </SyncButton>
+            </div>
+        );
+        menuProps.setNavigationContent(binanceNavigation)
     }, []);
 
     function rowClick(params: GridRowParams) {
@@ -143,91 +144,29 @@ export default function BinanceSummary(menuProps: MenuProps) {
         )
     }
 
-    function syncButton() {
-        function handleClick() {
-            useFetchPost<SyncResultResponse>("/binance/trades/sync", {})
-                .then(response => {
-                    menuProps.dialogProps.content(renderResults(response))
-                    menuProps.dialogProps.openClose(true)
-                })
-                .catch(err => {
-                    menuProps.dialogProps.content(<div>{err}</div>)
-                    menuProps.dialogProps.openClose(true)
-                });
-        }
-
-        return (
-            <Button variant="contained" className="my-button" onClick={handleClick}>Sync</Button>
-        );
-    }
-
-    function renderResults(apiResponse: SyncResultResponse) {
-        if (!apiResponse) return null;
-
-        const {earnHistory, convertHistory} = apiResponse;
-
-        return (
-            <div>
-                <h3>Locked Subscriptions</h3>
-                <ul>
-                    <li>Skipped: {earnHistory.lockedSubscriptions.skipped}</li>
-                    <li>Persisted: {earnHistory.lockedSubscriptions.persisted}</li>
-                    <li>Updated: {earnHistory.lockedSubscriptions.updated}</li>
-                    <li>Removed: {earnHistory.lockedSubscriptions.removed}</li>
-                </ul>
-
-                <h3>Earn History</h3>
-                <ul>
-                    <li>Skipped: {earnHistory.earnHistoryItems.skipped}</li>
-                    <li>Persisted: {earnHistory.earnHistoryItems.persisted}</li>
-                    <li>Updated: {earnHistory.earnHistoryItems.updated}</li>
-                    <li>Removed: {earnHistory.earnHistoryItems.removed}</li>
-                </ul>
-
-                <h3>Convert History</h3>
-                <ul>
-                    <li>Skipped: {convertHistory.skipped}</li>
-                    <li>Persisted: {convertHistory.persisted}</li>
-                    <li>Updated: {convertHistory.updated}</li>
-                    <li>Removed: {convertHistory.removed}</li>
-                </ul>
-            </div>
-        );
-    }
-
-
-    function contextualMenuComponent(): JSX.Element {
-        // const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        //     console.log("handleChange-> %s, %s", checked, event.target.checked)
-        //     setChecked(event.target.checked);
-        // };
-
-        // function skipNotOwnedCoinsCheckbox(): JSX.Element {
-        //     const label = {inputProps: {'aria-label': 'Checkbox demo'}};
-        //     return (<Checkbox {...label} checked={checked} onChange={handleChange}/>)
-        // }
-
-        return (
-            <div>
-
-                {/*{headTable()}*/}
-                {syncButton()}
-                {/*<div className={"centered-element-wrapper"}>*/}
-                {/*<div className={"centered-element"}><p>Skip not owned coins? {checked}</p></div>*/}
-                {/*<div className={"centered-element"}>{skipNotOwnedCoinsCheckbox()}</div>*/}
-                {/*<div className={"centered-element"}></div>*/}
-                {/*</div>*/}
-
-
-            </div>
-        )
-    }
+    // function syncButton() {
+    //     // return <Button onClick={() => enqueueSnackbar('I love hooks')}>Show snackbar</Button>;
+    //     function handleClick() {
+    //         //
+    //         useFetchPost<SyncResultResponse>("/binance/trades/sync", {})
+    //             .then(response => {
+    //                 menuProps.dialogProps.content(renderResults(response))
+    //                 menuProps.dialogProps.openClose(true)
+    //             })
+    //             // .catch(err => {
+    //                 // enqueueSnackbar(err.message, { variant: 'error' })
+    //             // });
+    //     }
+    //
+    //     return (
+    //         <Button variant="contained" className="my-button" onClick={handleClick}>Sync</Button>
+    //     );
+    // }
 
     return (
 
         <div>
             <h2>Summary</h2>
-
             {SimpleLineChart()}
 
             <h3>Overview</h3>
