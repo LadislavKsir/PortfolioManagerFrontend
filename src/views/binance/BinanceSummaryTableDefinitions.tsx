@@ -2,16 +2,8 @@ import {GridColDef, GridRenderCellParams, GridValidRowModel} from "@mui/x-data-g
 import {CoinTradesSummary} from "../../types/CoinTradesSummary.ts";
 import {Trade} from "../../types/Trade.ts";
 import isStableCoin from "../../utils/StableCoins.ts";
-import {formatDate, formatDateTime} from "../../utils/DateFormatter.ts";
-
-function getCurrentPercent(row: CoinTradesSummary) {
-    const diff = (parseFloat(row.holding) * row.actualPrice) / (parseFloat(row.holding) * parseFloat(row.averageBuyPrice))
-    if (diff > 1) {
-        return (diff - 1) * 100
-    } else {
-        return -(1 - diff) * 100
-    }
-}
+import {formatDateTime} from "../../utils/DateFormatter.ts";
+import {getCurrentPercentFromCoinTradesSummary} from "../../utils/Calculations.ts";
 
 export const overviewTablecolumns: GridColDef[] = [
     {
@@ -36,7 +28,7 @@ export const overviewTablecolumns: GridColDef[] = [
         }
     },
     {
-       
+
         field: 'holding',
         headerName: 'Holding',
         type: 'number',
@@ -44,7 +36,7 @@ export const overviewTablecolumns: GridColDef[] = [
         valueGetter: (_, row: CoinTradesSummary) => parseFloat(row.holding).toFixed(6),
     },
     {
-       
+
         field: 'totalBuyPrice',
         headerName: 'Buy value',
         description: '',
@@ -52,23 +44,26 @@ export const overviewTablecolumns: GridColDef[] = [
         valueGetter: (_, row: CoinTradesSummary) => parseFloat(row.totalBuyPrice).toFixed(6),
     },
     {
-       
+
         field: 'Actual value',
         headerName: 'Actual value',
         type: 'number',
         valueGetter: (_, row: CoinTradesSummary) => parseFloat(row.holding) * row.actualPrice,
     },
     {
-       
+
         field: 'Actual %',
         headerName: 'Actual %',
         type: 'number',
         width: 130,
-        valueGetter: (_, row: CoinTradesSummary) => getCurrentPercent(row),
+        valueGetter: (_, row: CoinTradesSummary) => getCurrentPercentFromCoinTradesSummary(row),
+        valueFormatter: (value: number) => {
+            return value.toFixed(2) + "%"
+        },
     },
 
     {
-       
+
         field: 'actualPrice',
         headerName: 'Actual price',
         description: '',
@@ -77,7 +72,7 @@ export const overviewTablecolumns: GridColDef[] = [
     },
 
     {
-       
+
         field: 'averageBuyPrice',
         headerName: 'Average buy price',
         description: '',
@@ -85,7 +80,7 @@ export const overviewTablecolumns: GridColDef[] = [
         valueGetter: (_, row: CoinTradesSummary) => parseFloat(row.averageBuyPrice).toFixed(5),
     },
     {
-       
+
         field: 'unrealisedProfit',
         headerName: 'Unrealised Profit',
         description: '',
@@ -93,7 +88,7 @@ export const overviewTablecolumns: GridColDef[] = [
         valueGetter: (_, row: CoinTradesSummary) => row.unrealisedProfit.toFixed(5),
     },
     {
-       
+
         field: 'lowestBuyPrice',
         headerName: 'Lowest buy price',
         description: '',
@@ -101,7 +96,7 @@ export const overviewTablecolumns: GridColDef[] = [
         valueGetter: (_, row: CoinTradesSummary) => parseFloat(row.lowestBuyPrice).toFixed(5),
     },
     {
-       
+
         field: 'highestBuyPrice',
         headerName: 'Highest buy price',
         description: '',
@@ -112,19 +107,19 @@ export const overviewTablecolumns: GridColDef[] = [
 
 export const lastTradesTableColumns: GridColDef[] = [
     {
-       
+
         field: 'from',
         headerName: 'From',
         type: 'string'
     },
     {
-       
+
         field: 'to',
         headerName: 'To',
         type: 'string'
     },
     {
-       
+
         field: 'averageBuyPrice',
         headerName: 'Price',
         description: '',
@@ -132,7 +127,7 @@ export const lastTradesTableColumns: GridColDef[] = [
         valueGetter: (_, row: Trade) => isStableCoin(row.from) ? row.inversePrice : row.price,
     },
     {
-       
+
         field: 'sellQuantity',
         headerName: 'Quantity',
         description: '',
@@ -140,7 +135,7 @@ export const lastTradesTableColumns: GridColDef[] = [
         valueGetter: (_, row: Trade) => isStableCoin(row.from) ? row.buyQuantity : row.sellQuantity,
     },
     {
-       
+
         field: 'tradeValue',
         headerName: 'Trade value',
         description: '',
@@ -148,7 +143,7 @@ export const lastTradesTableColumns: GridColDef[] = [
         valueGetter: (_, row: Trade) => isStableCoin(row.from) ? row.sellQuantity : row.buyQuantity,
     },
     {
-       
+
         field: 'date',
         headerName: 'Date',
         description: '',
@@ -160,7 +155,7 @@ export const lastTradesTableColumns: GridColDef[] = [
         }
     },
     {
-       
+
         field: 'orderType',
         headerName: 'orderType',
         description: '',

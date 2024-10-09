@@ -7,7 +7,7 @@ import {Dispatch, JSX, SetStateAction, useState} from "react";
 import {AppDrawer} from "./components/AppDrawer.tsx";
 import {AppDialog} from "./components/AppDialog.tsx";
 
-import 'react-notifications/lib/notifications.css';
+// import 'react-notifications/lib/notifications.css';
 import { SnackbarProvider } from 'notistack';
 
 

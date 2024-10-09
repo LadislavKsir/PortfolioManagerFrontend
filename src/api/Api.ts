@@ -2,6 +2,7 @@ import axios, {AxiosError} from "axios";
 import useSWR from "swr";
 import {errorNotification, fetchOkNotification} from "../utils/NotificationsHelper.ts";
 
+const BASE_URL = 'http://localhost:8080/api'
 export const axiosInstance = axios.create({
     baseURL: 'http://localhost:8080',
     headers: {
@@ -58,7 +59,7 @@ export enum MethodTypes {
 // };
 
 const useCachedFetch = <T>(url: string): T => {
-    const BASE_URL = 'http://localhost:8080'
+    // const BASE_URL = 'http://localhost:8080'
 
     const fetcher = async (url: string) => {
         return await axiosInstance
@@ -82,7 +83,7 @@ const useCachedFetch = <T>(url: string): T => {
 }
 
 const useFetch = <T>(url: string): T => {
-    const BASE_URL = 'http://localhost:8080'
+    // const BASE_URL = 'http://localhost:8080/api'
 
     const fetcher = async (url: string) => {
         return await axiosInstance
@@ -98,7 +99,7 @@ const useFetch = <T>(url: string): T => {
 };
 
 export const useFetchPost = async <T>(url: string, body: any): Promise<T> => {
-    const BASE_URL = 'http://localhost:8080'
+
 
     return await axiosInstance
         .post(BASE_URL + url, body)
@@ -111,7 +112,7 @@ export const useFetchPost = async <T>(url: string, body: any): Promise<T> => {
 };
 
 export const useFetchDelete = async <T>(url: string): Promise<T> => {
-    const BASE_URL = 'http://localhost:8080'
+    // const BASE_URL = 'http://localhost:8080'
 
     return await axiosInstance.delete(BASE_URL + url).then((res: { data: T; }) => {
             fetchOkNotification()

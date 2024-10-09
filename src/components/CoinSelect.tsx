@@ -23,7 +23,7 @@ export default function CoinSelect({ selectedCoin, onCoinSelect }: CoinSelectPro
         // coins.coins.push(c)
 
         return (
-            <div>
+            <div className={"xxx"}>
                 <FormControl>
                     <InputLabel id="select-coin-label">Coin</InputLabel>
 
@@ -31,9 +31,9 @@ export default function CoinSelect({ selectedCoin, onCoinSelect }: CoinSelectPro
                         labelId="coin-select-label"
                         id="coin-select"
                         value={selectedCoin}
-                        label="Select Coin"
+                        // label="Select Coin"
                         onChange={handleCoinSelectChange}
-                        // displayEmpty={true}
+                        displayEmpty={true}
                     >
                         <MenuItem key={-1} value={""}>
                             -* All *-

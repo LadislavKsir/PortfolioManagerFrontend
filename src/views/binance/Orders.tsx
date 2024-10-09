@@ -19,7 +19,7 @@ export default function Orders(menuProps: MenuProps) {
 
     const [statusSelectValue, setStatusSelectValue] = useState<string | undefined>('PROCESS');
     const [activeTab, setActiveTab] = useState(1);
-    const [selectedCoin, setSelectedCoin] = useState<string>("ALL");
+    const [selectedCoin, setSelectedCoin] = useState<string>("");
 
 
     useEffect(() => {
@@ -43,11 +43,26 @@ export default function Orders(menuProps: MenuProps) {
 
     const buyColumns: GridColDef[] = [
         {
-            field: 'to',
+            field: 'coinCodex',
             headerName: 'Coin',
-            type: 'string',
-            width: 130,
+            width: 150,
             valueGetter: (_: never, row: TradeOrder) => row.from + " -> " + row.to,
+            renderCell: (params: GridRenderCellParams<GridValidRowModel, string>) => {
+                if (params.value) {
+                    return (
+                        <div className={"coin-icon-div"}>
+                            <img
+                                className={"coin-icon"}
+                                src={"/icons/" + params.value.split(" -> ")[1] + ".png"}
+                            >
+                            </img>{params.value}
+                        </div>
+                    );
+                } else {
+                    return (<div></div>)
+                }
+
+            }
         },
         {
             field: 'buyQuantity',
@@ -307,7 +322,7 @@ export default function Orders(menuProps: MenuProps) {
 
         return (
             <div>
-                <div className={"centered-element-wrapper"}>
+                <div className={"centered-element-wrapper xxx"}>
                     <div className={"centered-element"}>
                         {orderStatusSelect()}
                     </div>

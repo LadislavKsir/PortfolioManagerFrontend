@@ -4,11 +4,12 @@ import {JSX, useEffect} from "react";
 import {MenuProps} from "../../App.tsx";
 import {DataResponse} from "../../types/DataResponse.ts";
 import {LockedSubscription} from "../../types/LockedSubscription.ts";
-import {formatDate} from "../../utils/DateFormatter.ts";
+import {formatDate, formatDateTime} from "../../utils/DateFormatter.ts";
 import LoadingComponent from "../../components/LoadingComponent.tsx";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import SyncButton from "../../components/SyncButton.tsx";
 import {binanceNavigation} from "../../routing/NavigationDefinitionFactory.tsx";
+import {Trade} from "../../types/Trade.ts";
 
 export default function LockedSubscriptions(menuProps: MenuProps) {
 
@@ -62,11 +63,11 @@ export default function LockedSubscriptions(menuProps: MenuProps) {
         }, {
             field: 'End at',
             headerName: 'End at',
-
+            width: 180,
             type: 'string',
             valueGetter: (_, row: LockedSubscription) => new Date(row.endTime),
             valueFormatter: (value?: Date) => {
-                return formatDate(value)
+                return formatDateTime(value)
             }
 
         }, {

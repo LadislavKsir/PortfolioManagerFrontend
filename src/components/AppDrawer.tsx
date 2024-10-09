@@ -9,8 +9,8 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import InboxIcon from "@mui/icons-material/MoveToInbox";
 import {ListItemText, Typography} from "@mui/material";
 import List from "@mui/material/List";
-import {NavigationDefinition} from "../App.tsx";
 import HomeIcon from '@mui/icons-material/Home';
+import {NavigationDefinition} from "../routing/NavigationDefinition.tsx";
 interface AppDrawerProps {
     menuComponentContent: JSX.Element,
     navigationContent: NavigationDefinition[]
@@ -19,11 +19,28 @@ interface AppDrawerProps {
 export function AppDrawer(props: AppDrawerProps): JSX.Element {
 
     const drawerWidth = 240;
+    const handleClick = (event: React.MouseEvent, link: string) => {
+        // Check if Ctrl or Meta (Command key on Mac) is pressed to open in a new tab
+        if (event.ctrlKey || event.metaKey) {
+            window.open(link, '_blank');
+        } else {
+            window.location.href = link;
+        }
+    };
+
+    const handleRightClick = (event: React.MouseEvent) => {
+        // Allow the default browser right-click menu to appear
+        // event.preventDefault();
+        // You can add custom behavior here if needed or remove this to fully rely on the browser's default context menu
+    };
 
     function listItemButton(text: string, linkUrl: string): JSX.Element {
         return (
             <ListItem key={text} disablePadding>
-                <ListItemButton onClick={() => (window.location.href = linkUrl)}>
+                <ListItemButton
+                    onClick={(event) => handleClick(event, linkUrl)}
+                    onContextMenu={handleRightClick}
+                >
                     <ListItemIcon>
                         <HomeIcon sx={{ color: '#f1ecf1' }}/>
                     </ListItemIcon>
@@ -43,12 +60,17 @@ export function AppDrawer(props: AppDrawerProps): JSX.Element {
         )
     }
 
+
     function contextualNavigationList(): JSX.Element {
+
         return (
             <List>
                 {props.navigationContent.map((def) => (
                     <ListItem key={def.text} disablePadding>
-                        <ListItemButton onClick={() => (window.location.href = def.link)}>
+                        <ListItemButton
+                            onClick={(event) => handleClick(event, def.link)}
+                            onContextMenu={handleRightClick}
+                        >
                             <ListItemIcon>
                                 <InboxIcon/>
                             </ListItemIcon>
