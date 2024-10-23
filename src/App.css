@@ -12,15 +12,15 @@
 
 }
 
-.coin-icon-div{
+.coin-icon-div {
     /*display: flex;*/
     /*justify-content: center;*/
 }
 
-.coin-icon{
+.coin-icon {
     width: 24px;
     height: 24px;
-    margin-right:8px;
+    margin-right: 8px;
 }
 
 .header-bar {
@@ -72,7 +72,6 @@
 }
 
 
-
 html,
 body {
     margin: 0;
@@ -89,7 +88,6 @@ body {
 * {
     box-sizing: border-box;
 }
-
 
 
 .header {
@@ -141,7 +139,7 @@ body {
     color: red;
 }
 
-.nearing-expiration{
+.nearing-expiration {
     color: orange;
     font-weight: bold;
 }
@@ -164,10 +162,18 @@ body {
     /*display: flex;*/
 }
 
-.left-padding{
+.left-padding {
     padding-left: 20px;
 }
 
-.xxx{
+.xxx {
     /*width: 250px;*/
+}
+
+.homepage-choice-container {
+    border: 5px solid white;
+}
+
+.homepage-choice-container:hover {
+    border: 5px solid darkgray;
 }
