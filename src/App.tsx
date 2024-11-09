@@ -100,15 +100,4 @@ function App() {
     );
 }
 
-// function syncButton() {
-//     function handleClick() {
-//         // errorNotification("err.message")
-//
-//     }
-//
-//     return (
-//         <Button variant="contained" className="my-button" onClick={handleClick}>Sync</Button>
-//     );
-// }
-
 export default App

@@ -165,37 +165,12 @@ export default function BinanceSummary(menuProps: MenuProps) {
         )
     }
 
-    // function syncButton() {
-    //     // return <Button onClick={() => enqueueSnackbar('I love hooks')}>Show snackbar</Button>;
-    //     function handleClick() {
-    //         //
-    //         useFetchPost<SyncResultResponse>("/binance/trades/sync", {})
-    //             .then(response => {
-    //                 menuProps.dialogProps.content(renderResults(response))
-    //                 menuProps.dialogProps.openClose(true)
-    //             })
-    //             // .catch(err => {
-    //                 // enqueueSnackbar(err.message, { variant: 'error' })
-    //             // });
-    //     }
-    //
-    //     return (
-    //         <Button variant="contained" className="my-button" onClick={handleClick}>Sync</Button>
-    //     );
-    // }
-
     function datePickers(): JSX.Element {
         const handleDateFromChange = (newDate) => {
-            // const formattedDate = dayjs(newDate).format('YYYY-MM-DD');
-            // console.log("Original date: " + newDate)
-            // console.log("Formatted date: " + formattedDate)
             setDateFrom(newDate);
         };
 
         const handleDateToChange = (newDate) => {
-            // const formattedDate = dayjs(newDate).format('YYYY-MM-DD');
-            // console.log("Original date: " + newDate)
-            // console.log("Formatted date: " + formattedDate)
             setDateTo(newDate);
         };
 

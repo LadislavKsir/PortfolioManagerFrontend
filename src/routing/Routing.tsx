@@ -46,7 +46,6 @@ export default function Routing(menuProps: MenuProps) {
                     <BinanceSummary {...menuProps} />
                 }/>
 
-                {/*<Route path={BINANCE_SUMMARY_PATH} element={<BinanceSummary/>}/>*/}
                 <Route path={PORTU_SUMMARY_PATH} element={<PortuSummary/>}/>
 
                 <Route path={PATRIA_SUMMARY_PATH}

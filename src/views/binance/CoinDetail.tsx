@@ -285,7 +285,7 @@ export default function CoinDetail(menuProps: MenuProps) {
             <div className={"centered-element"}>
 
                 <h2>Coin detail</h2>
-p
+
                 {/*{headTableNew()}*/}
                 {headTable()}
 
