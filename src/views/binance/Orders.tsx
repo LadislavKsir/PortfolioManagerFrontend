@@ -13,6 +13,7 @@ import {fetchOkNotification} from "../../utils/NotificationsHelper.ts";
 import SyncButton  from "../../components/SyncButton.tsx";
 import {binanceNavigation} from "../../routing/NavigationDefinitionFactory.tsx";
 import CoinSelect from "../../components/CoinSelect.tsx";
+import {formatNumberValue} from "../../utils/ValueFormatter.ts";
 
 export default function Orders(menuProps: MenuProps) {
     // const {code} = useParams();
@@ -45,7 +46,7 @@ export default function Orders(menuProps: MenuProps) {
         {
             field: 'coinCodex',
             headerName: 'Coin',
-            width: 150,
+            width: 175,
             valueGetter: (_: never, row: TradeOrder) => row.from + " -> " + row.to,
             renderCell: (params: GridRenderCellParams<GridValidRowModel, string>) => {
                 if (params.value) {
@@ -67,22 +68,30 @@ export default function Orders(menuProps: MenuProps) {
         {
             field: 'buyQuantity',
             headerName: 'Qty',
-            type: 'string'
+            type: 'string',
+            width: 125,
         },
         {
             field: 'sellQuantity',
             headerName: 'Cost $',
-            type: 'string'
+            type: 'string',
+            width: 125,
         },
         {
             field: 'inversePrice',
             headerName: 'Price',
-            type: 'number'
+            type: 'number',
+            width: 125,
         },
         {
             field: 'actualPrice',
             headerName: 'Actual price',
-            type: 'number'
+            type: 'number',
+            valueFormatter: (value?: number) => {
+                return formatNumberValue(value)
+            },
+            width: 125,
+
         },
         {
             field: 'expireTime',
@@ -94,8 +103,10 @@ export default function Orders(menuProps: MenuProps) {
             },
             cellClassName: (params: GridCellParams<TradeOrder, string>) => {
                 return params.row.nearingExpiration ? "nearing-expiration" : "";
-            }
+            },
+            width: 120,
         },
+
         {
 
             field: 'status',
@@ -153,7 +164,7 @@ export default function Orders(menuProps: MenuProps) {
         {
             field: 'coinCodex',
             headerName: 'Coin',
-            width: 150,
+            width: 175,
             valueGetter: (_: never, row: TradeOrder) => row.from + " -> " + row.to,
             renderCell: (params: GridRenderCellParams<GridValidRowModel, string>) => {
                 if (params.value) {
@@ -175,28 +186,34 @@ export default function Orders(menuProps: MenuProps) {
         {
             field: 'sellQuantity',
             headerName: 'Qty',
-            type: 'string'
+            type: 'string',
+            width: 125,
         },
         {
             field: 'buyQuantity',
             headerName: 'Sell for $',
-            type: 'string'
+            type: 'string',
+            width: 125,
         },
         {
             field: 'price',
             headerName: 'Price',
-            type: 'number'
+            type: 'number',
+            width: 125,
         },
         {
             field: 'actualPrice',
             headerName: 'Actual price',
-            type: 'number'
+            type: 'number',
+            valueFormatter: (value?: number) => {
+                return formatNumberValue(value)
+            },
+            width: 125,
         },
         {
             field: 'expireTime',
             headerName: 'expireTime',
             type: 'string',
-            width: 150,
             cellClassName: (params: GridCellParams<TradeOrder, string>) => {
                 return params.row.nearingExpiration ? "nearing-expiration" : "";
             },
@@ -204,6 +221,7 @@ export default function Orders(menuProps: MenuProps) {
             valueFormatter: (value?: Date) => {
                 return formatDateTime(value)
             },
+            width: 120,
         },
         {
             field: 'status',
@@ -327,77 +345,79 @@ export default function Orders(menuProps: MenuProps) {
                         {orderStatusSelect()}
                     </div>
                     <div className={"centered-element"}>
-                        <CoinSelect selectedCoin={selectedCoin} onCoinSelect={setSelectedCoin} />
+                        <CoinSelect selectedCoin={selectedCoin} onCoinSelect={setSelectedCoin}/>
                     </div>
                 </div>
-                <Tabs value={activeTab} onChange={handleTabChange} centered>
-                    <Tab label="Buy Orders"/>
-                    <Tab label="Sell Orders"/>
-                </Tabs>
-                {activeTab === 0 && (
-                    <div className={"centered-element-without-padding"}>
-                        <div style={{width: '100%'}}>
-                            <h3>Buy orders</h3>
-                            <DataGrid
-                                rows={buyOrders.data}
-                                columns={buyColumns}
-                                initialState={{
-                                    pagination: {
-                                        paginationModel: {page: 0, pageSize: 100},
-                                    },
-                                    sorting: {
-                                        sortModel: [{field: 'from', sort: 'asc'}],
-                                    }
-                                }}
-                                getRowClassName={(params) => {
-                                    return pricesNearBuy(params.row) ? "profit" : "";
-                                }}
-                                getRowId={(row: TradeOrder) => {
-                                    return row.from + row.to + row.date;
-                                }}
-                                pageSizeOptions={[50, 100]}
-                            />
-                        </div>
+                <br/>
+
+                <div style={{ paddingTop: '20px',display: 'flex', flexDirection: 'column', maxWidth: '1000px', margin: '0 auto' }}>
+                    {/* Tabs styled to look like part of the table */}
+                    <div style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+                        <Tabs
+                            value={activeTab}
+                            onChange={handleTabChange}
+                            variant="fullWidth"  // Ensures the tabs span across the full width
+                            style={{
+                                // backgroundColor: '#f5f5f5',  // Match table header background
+                                // borderBottom: '1px solid #e0e0e0', // Add border to match the table look
+                                border: '1px solid #e0e0e0', // Add border to match the table look
+                                width: '100%',
+                                padding: 0  // Remove extra padding
+                            }}
+                        >
+                            <Tab label="Buy Orders" style={{borderRight: "1px solid #e0e0e0"}}/>
+                            <Tab label="Sell Orders"/>
+                        </Tabs>
                     </div>
-                )}
-                {activeTab === 1 && (
-                    <div className={"centered-element-without-padding"}>
-                        <div style={{width: '100%'}}>
-                            <h3>Sell orders</h3>
-                            <DataGrid
-                                rows={sellOrders.data}
-                                columns={sellColumns}
-                                initialState={{
-                                    pagination: {
-                                        paginationModel: {page: 0, pageSize: 100},
-                                    },
-                                    sorting: {
-                                        sortModel: [{field: 'from', sort: 'asc'}],
-                                    }
-                                }}
-                                // sx={{
-                                //     '& .MuiDataGrid-cell': {
-                                //         padding: '0 8px', // Reduce padding to make rows more compact
-                                //     },
-                                //     '& .MuiDataGrid-row': {
-                                //         maxHeight: '15px !important', // Ensures row height consistency
-                                //     },
-                                //     '& .MuiDataGrid-columnHeaders': {
-                                //         backgroundColor: '#f5f5f5', // Optional: Style column headers
-                                //     },
-                                //     width: '100%', // Make the grid fill the container's width
-                                // }}
-                                getRowClassName={(params) => {
-                                    return pricesNearSell(params.row) ? "profit" : "";
-                                }}
-                                getRowId={(row: TradeOrder) => {
-                                    return row.from + row.to + row.date;
-                                }}
-                                pageSizeOptions={[100, 200]}
-                            />
+
+                    {/* Buy Orders */}
+                    {activeTab === 0 && (
+                        <div className={"centered-element-without-padding"}>
+                            <div style={{width: '100%'}}>
+                                <DataGrid
+                                    rows={buyOrders.data}
+                                    columns={buyColumns}
+                                    initialState={{
+                                        pagination: {
+                                            paginationModel: {page: 0, pageSize: 100},
+                                        },
+                                        sorting: {
+                                            sortModel: [{field: 'from', sort: 'asc'}],
+                                        }
+                                    }}
+                                    getRowClassName={(params) => {
+                                        return pricesNearBuy(params.row) ? "profit" : "";
+                                    }}
+                                    getRowId={(row: TradeOrder) => row.from + row.to + row.date}
+                                    pageSizeOptions={[50, 100]}
+                                />
+                            </div>
                         </div>
-                    </div>
-                )}
+                    )}
+
+                    {/* Sell Orders */}
+                    {activeTab === 1 && (
+                        <div className={"centered-element-without-padding"}>
+                            <div style={{width: '100%'}}>
+                                <DataGrid
+                                    rows={sellOrders.data}
+                                    columns={sellColumns}
+                                    initialState={{
+                                        pagination: {
+                                            paginationModel: {page: 0, pageSize: 100},
+                                        },
+                                        sorting: {
+                                            sortModel: [{field: 'from', sort: 'asc'}],
+                                        }
+                                    }}
+                                    getRowClassName={(params) => pricesNearSell(params.row) ? "profit" : ""}
+                                    getRowId={(row: TradeOrder) => row.from + row.to + row.date}
+                                    pageSizeOptions={[100, 200]}
+                                />
+                            </div>
+                        </div>
+                    )}
+                </div>
             </div>
         );
     }

@@ -11,12 +11,14 @@ import {ListItemText, Typography} from "@mui/material";
 import List from "@mui/material/List";
 import HomeIcon from '@mui/icons-material/Home';
 import {NavigationDefinition} from "../routing/NavigationDefinition.tsx";
+import {useNavigate} from "react-router-dom";
 interface AppDrawerProps {
     menuComponentContent: JSX.Element,
     navigationContent: NavigationDefinition[]
 }
 
 export function AppDrawer(props: AppDrawerProps): JSX.Element {
+    const navigate = useNavigate();
 
     const drawerWidth = 240;
     const handleClick = (event: React.MouseEvent, link: string) => {
@@ -24,7 +26,7 @@ export function AppDrawer(props: AppDrawerProps): JSX.Element {
         if (event.ctrlKey || event.metaKey) {
             window.open(link, '_blank');
         } else {
-            window.location.href = link;
+            navigate(link)
         }
     };
 
