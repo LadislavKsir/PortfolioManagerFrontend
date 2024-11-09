@@ -1,9 +1,8 @@
 import useFetch from "../../api/Api.ts";
 import {ListTradesResponse, Trade} from "../../types/Trade.ts";
-import {CoinTradesSummaryResponse} from "../../types/CoinTradesSummary.ts";
 import {DataGrid} from "@mui/x-data-grid";
 import addParams, {addPathVariable, Parameter} from "../../utils/UrlBuilder.ts";
-import  {JSX, useEffect} from "react";
+import {JSX, useEffect} from "react";
 import isStableCoin from "../../utils/StableCoins.ts";
 import {useParams} from "react-router-dom";
 import {MenuProps} from "../../App.tsx";
@@ -12,24 +11,22 @@ import {TradesSummarySnapshot} from "../../types/TradesSummarySnapshot.ts";
 import {formatDateTimeString} from "../../utils/DateFormatter.ts";
 import LoadingComponent from "../../components/LoadingComponent.tsx";
 import {coinDetailCoinTradesTableDefinition} from "./CoinDetailTableDefinitions.tsx";
-import {Box, Grid, Paper, Typography} from "@mui/material";
-import {styled} from "@mui/system";
-import {CoinDetail} from "../../types/CoinDetail.ts";
+import {CoinDetailResponse} from "../../types/CoinDetailResponse.ts";
 import {removeUnncessaryDotsInValueArray} from "../../utils/Calculations.ts";
 import {NavigationDefinition} from "../../routing/NavigationDefinition.tsx";
+import {Divider} from '@mui/material';
 
 export default function CoinDetail(menuProps: MenuProps) {
 
-    const {code} = useParams();
+    const {code} = useParams() as { code: string };
     const params: Parameter[] = [{key: 'coinCodes', value: code}]
 
     const coinTrades = useFetch<ListTradesResponse>(addParams('/binance/trades', params))
-    const coinTradesSummary = useFetch<CoinTradesSummaryResponse>(addParams('/binance/trades/trades-summary', params));
 
     const snapshotsParams: Parameter[] = [{key: 'coinCodes', value: code}, {key: 'onlyOverview', value: false}]
     const snapshots: TradesSummarySnapshot[] = useFetch<TradesSummarySnapshot[]>(addParams('/binance/trades/summary-snapshots', snapshotsParams))
 
-    const coinDetail = useFetch<CoinDetail>(addPathVariable('/binance/trades/coin-summary', code))
+    const coinDetail = useFetch<CoinDetailResponse>(addPathVariable('/binance/trades/coin-summary', code))
 
     useEffect(() => {
         const navigationContent: NavigationDefinition[] = [
@@ -41,17 +38,11 @@ export default function CoinDetail(menuProps: MenuProps) {
         menuProps.setNavigationContent(navigationContent)
     }, []);
 
-    const StyledPaper = styled(Paper)(({theme}) => ({
-        padding: theme.spacing(2),
-        backgroundColor: '#E0E0E0', // Grey background color for each block
-        textAlign: 'center',
-    }));
-
-    if (coinTrades === undefined || coinTradesSummary === undefined || coinDetail === undefined) {
+    if (coinTrades === undefined || coinDetail === undefined) {
         return (<div></div>)
     }
 
-    const coinTradeSummary = coinTradesSummary.coinTrades.pop()
+    const coinTradeSummary = coinDetail.tradesSummary
 
     if (coinTradeSummary === undefined) {
         return (<div></div>)
@@ -89,97 +80,27 @@ export default function CoinDetail(menuProps: MenuProps) {
     const actualValue = parseFloat(coinTradeSummary.holding) * coinTradeSummary.actualPrice
     const rows = coinTrades.trades
 
-    function headTableNew(): JSX.Element {
-        return (
-            <Paper
-                elevation={3}
-                sx={{
-                    padding: 2,
-                    borderRadius: 3,
-                    backgroundColor: '#f6f0ff', // Light purple background for the card
-                    border: '1px solid #C689FF', // Border styling
-                }}
-            >
-                <Box
-                    display="flex"
-                    justifyContent="center"
-                    alignItems="center"
-                    mb={2}
-                >
-                    {/* The coin icon and title */}
-                    <img
-                        src="coin-icon-url" // Add your coin icon URL here
-                        alt="Celestia Icon"
-                        style={{width: 40, height: 40, marginRight: 10}}
-                    />
-                    <Typography variant="h6">Celestia (TIA)</Typography>
-                </Box>
-                {/* The grid with values */}
-                <Grid container spacing={2}>
-                    <Grid item xs={4}>
-                        <StyledPaper>
-                            <Typography>Actual price:</Typography>
-                            <Typography variant="h6">13156</Typography>
-                        </StyledPaper>
-                    </Grid>
-                    <Grid item xs={4}>
-                        <StyledPaper>
-                            <Typography>Holding:</Typography>
-                            <Typography variant="h6">13156</Typography>
-                        </StyledPaper>
-                    </Grid>
-                    <Grid item xs={4}>
-                        <StyledPaper>
-                            <Typography>Buy price sum:</Typography>
-                            <Typography variant="h6">13156</Typography>
-                        </StyledPaper>
-                    </Grid>
-                    <Grid item xs={4}>
-                        <StyledPaper>
-                            <Typography>Actual value:</Typography>
-                            <Typography variant="h6">468</Typography>
-                        </StyledPaper>
-                    </Grid>
-                    <Grid item xs={4}>
-                        <StyledPaper>
-                            <Typography>Buy value:</Typography>
-                            <Typography variant="h6">135</Typography>
-                        </StyledPaper>
-                    </Grid>
-                    <Grid item xs={4}>
-                        <StyledPaper>
-                            <Typography>Sell price sum:</Typography>
-                            <Typography variant="h6">13156</Typography>
-                        </StyledPaper>
-                    </Grid>
-                    <Grid item xs={4}>
-                        <StyledPaper>
-                            <Typography>Realised profit:</Typography>
-                            <Typography variant="h6">13156</Typography>
-                        </StyledPaper>
-                    </Grid>
-                </Grid>
-            </Paper>
-        );
-    }
+    function headTableUpd(): JSX.Element {
+        const codeWithLink = (chartUrl: string | undefined): JSX.Element => {
+            return chartUrl ? <a href={chartUrl} target="_blank">{code}</a> : <p>{code}</p>
+        }
 
-    // function chartUrlLink(chartUrl: string | undefined): React.JSX.Element {
-    //     return
-    // }
-
-    function headTable(): JSX.Element {
-        const chartUrl = (chartUrl: string | undefined): JSX.Element => {
-            return chartUrl ? <a href={chartUrl} target="_blank">Chart @ CoinMarketCap</a> : <p/>
+        const getPossibleProfitClassName = (possibleProfit: string | undefined): string => {
+            return (possibleProfit === undefined || parseFloat(possibleProfit) < 0) ? "loss" : "profit"
         }
 
         return (
             <table className="coin-detail-table">
                 <tbody>
                 <tr className="coin-detail-table-row">
-                    <td>Code:</td>
-                    <td>{code}</td>
-                    <td>Actual Value:</td>
-                    <td> {actualValue}</td>
+                    <td>Coin:</td>
+                    <td>{codeWithLink(coinDetail.chartUrl)}</td>
+                    <td>Current price:</td>
+                    <td>{coinTradeSummary?.actualPrice}</td>
+
+                </tr>
+                <tr className="coin-detail-table-row">
+                    <td colSpan={4}><Divider/></td>
                 </tr>
                 <tr className="coin-detail-table-row">
                     <td>Holding:</td>
@@ -188,19 +109,31 @@ export default function CoinDetail(menuProps: MenuProps) {
                     <td> {coinTradeSummary?.totalBuyPrice}</td>
                 </tr>
                 <tr className="coin-detail-table-row">
-                    <td>Current price:</td>
-                    <td>{coinTradeSummary?.actualPrice}</td>
                     <td>Average buy price:</td>
                     <td>{coinTradeSummary?.averageBuyPrice}</td>
+                    <td>Actual Value:</td>
+                    <td> {actualValue}</td>
+                </tr>
+
+                <tr className="coin-detail-table-row">
+                    <td colSpan={4}><Divider/></td>
+                </tr>
+
+                <tr className="coin-detail-table-row">
+                    <td>Buy price sum:</td>
+                    <td>{coinTradeSummary?.buyPriceSum}</td>
+                    <td>Actuallay possible profit:</td>
+                    <td className={getPossibleProfitClassName(coinTradeSummary?.actuallyPossibleProfit)}>{coinTradeSummary?.actuallyPossibleProfit}</td>
                 </tr>
                 <tr className="coin-detail-table-row">
+                    <td>Sell price sum:</td>
+                    <td>{coinTradeSummary?.sellPriceSum}</td>
                     <td></td>
-                    <td>{chartUrl(coinDetail.chartUrl)}</td>
-                    <td>Realised profit:</td>
-                    <td>{coinTradeSummary?.realisedProfit}</td>
+                    <td></td>
                 </tr>
                 </tbody>
             </table>
+            // </div>
 
         )
     }
@@ -287,7 +220,8 @@ export default function CoinDetail(menuProps: MenuProps) {
                 <h2>Coin detail</h2>
 
                 {/*{headTableNew()}*/}
-                {headTable()}
+                {/*{headTable()}*/}
+                {headTableUpd()}
 
                 <h2>Value history</h2>
                 {SimpleLineChart()}
