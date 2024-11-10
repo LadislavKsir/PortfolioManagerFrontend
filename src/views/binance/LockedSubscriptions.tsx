@@ -24,6 +24,8 @@ export default function LockedSubscriptions(menuProps: MenuProps) {
             )
         );
         menuProps.setNavigationContent(binanceNavigation())
+
+        document.title = 'Locked subscriptions';
     }, []);
 
 

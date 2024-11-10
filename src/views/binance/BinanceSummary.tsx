@@ -42,6 +42,8 @@ export default function BinanceSummary(menuProps: MenuProps) {
             </div>
         );
         menuProps.setNavigationContent(binanceNavigation)
+
+        document.title = 'Binance summary';
     }, []);
 
     function rowClick(params: GridRowParams) {

@@ -34,6 +34,8 @@ export default function Orders(menuProps: MenuProps) {
             )
         );
         menuProps.setNavigationContent(binanceNavigation())
+
+        document.title = 'Orders';
     }, []);
 
 

@@ -36,6 +36,8 @@ export default function CoinDetail(menuProps: MenuProps) {
             {text: "Earn", link: "/binance/locked-subscriptions"},
         ]
         menuProps.setNavigationContent(navigationContent)
+
+        document.title = code + ' trades detail';
     }, []);
 
     if (coinTrades === undefined || coinDetail === undefined) {
