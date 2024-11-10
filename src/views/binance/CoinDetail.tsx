@@ -124,7 +124,7 @@ export default function CoinDetail(menuProps: MenuProps) {
                 <tr className="coin-detail-table-row">
                     <td>Buy price sum:</td>
                     <td>{coinTradeSummary?.buyPriceSum}</td>
-                    <td>Actuallay possible profit:</td>
+                    <td>Currently possible profit:</td>
                     <td className={getPossibleProfitClassName(coinTradeSummary?.actuallyPossibleProfit)}>{coinTradeSummary?.actuallyPossibleProfit}</td>
                 </tr>
                 <tr className="coin-detail-table-row">

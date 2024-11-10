@@ -17,24 +17,3 @@ export interface CoinTradesSummary {
     totalBuyPrice: string,
 
 }
-
-
-// export interface CoinTradesSummaryResponse {
-//     coinTrades: CoinTradesSummary[],
-//     totalInvested: number,
-//     totalActualValue: number
-// }
-//
-// export interface CoinTradesSummary {
-//     id: string | undefined,
-//     coinCode: string,
-//     holding: string,
-//     averagePrice: string,
-//     unrealisedProfitOrLoss: number,
-//     realisedProfit: number,
-//     actualPrice: number,
-//     actualValue: string,
-//     currentlyInvested: string,
-//
-//
-// }

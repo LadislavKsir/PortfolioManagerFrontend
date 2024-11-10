@@ -9,8 +9,6 @@ import LoadingComponent from "../../components/LoadingComponent.tsx";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import SyncButton from "../../components/SyncButton.tsx";
 import {binanceNavigation} from "../../routing/NavigationDefinitionFactory.tsx";
-import {Trade} from "../../types/Trade.ts";
-
 export default function LockedSubscriptions(menuProps: MenuProps) {
 
     useEffect(() => {
