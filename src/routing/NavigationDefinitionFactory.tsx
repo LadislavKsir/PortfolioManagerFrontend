@@ -16,7 +16,15 @@ export function earn(): NavigationDefinition {
     return {text: "Earn", link: "/binance/locked-subscriptions"}
 }
 
+export function settings(): NavigationDefinition {
+    return {text: "Settings", link: "/binance/locked-subscriptions"}
+}
 
 export function binanceNavigation(): NavigationDefinition[] {
     return [summary(), orders(), coins(), earn()]
+}
+
+
+export function commonNavigation(): NavigationDefinition[] {
+    return [settings()]
 }

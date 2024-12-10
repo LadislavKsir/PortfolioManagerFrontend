@@ -8,7 +8,7 @@ import {JSX, useEffect, useState} from "react";
 import addParams, {Parameter} from "../../utils/UrlBuilder.ts";
 import {TableContainer, TextField} from "@mui/material";
 import {TradesSummarySnapshot} from "../../types/TradesSummarySnapshot.ts";
-import {LineChart} from "@mui/x-charts";
+import {LineChart} from '@mui/x-charts/LineChart';
 import isStableCoin from "../../utils/StableCoins.ts";
 import {MenuProps} from "../../App.tsx";
 import LoadingComponent from "../../components/LoadingComponent.tsx";
@@ -57,6 +57,8 @@ export default function BinanceSummary(menuProps: MenuProps) {
     const data = useFetch<CoinTradesSummaryResponse>(addParams('/binance/trades/trades-summary', listTradesSummaryParams))
 
 
+    console.log(data)
+
     const listTradesParams: Parameter[] = [{key: "pageSize", value: 30}]
     const trades = useFetch<ListTradesResponse>(addParams('/binance/trades', listTradesParams))
 
@@ -72,6 +74,40 @@ export default function BinanceSummary(menuProps: MenuProps) {
         {key: "dateTo", value: formatDateToBe(dateTo)}
     ]
     const snapshots: TradesSummarySnapshot[] = useFetch<TradesSummarySnapshot[]>(addParams('/binance/trades/summary-snapshots', listTradesSummarySnapshotsParams))
+
+    function sumTable(): JSX.Element {
+        const getPossibleProfitClassName = (possibleProfit: string | undefined): string => {
+            return (possibleProfit === undefined || parseFloat(possibleProfit) < 0) ? "loss" : "profit"
+        }
+
+        return (data === undefined) ?
+            <LoadingComponent/> : (
+
+                <table className="coin-detail-table max-width-75">
+                    <tbody>
+                    <tr className="coin-detail-table-row">
+                        <td>Buy price sum:</td>
+                        <td>{data?.totalBuyPriceSum}</td>
+
+                        <td>Invested:</td>
+                        <td>{data.totalInvested}</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr className="coin-detail-table-row">
+                        <td>Sell price sum:</td>
+                        <td>{data?.totalSellPriceSum}</td>
+                        <td>Actual value:</td>
+                        <td className={( data.totalActualValue - data.totalInvested) < 0 ? "loss" : "profit"} >{data.totalActualValue}</td>
+
+                        <td>Currently possible profit:</td>
+                        <td className={getPossibleProfitClassName(data?.actuallyPossibleProfit)}>{data?.actuallyPossibleProfit}</td>
+                    </tr>
+                    </tbody>
+                </table>
+
+            )
+    }
 
     function overviewTable(): JSX.Element {
 
@@ -117,8 +153,18 @@ export default function BinanceSummary(menuProps: MenuProps) {
         const invested = removeUnncessaryDotsInValueArray(snapshots.map((x) => x.invested));
         const actualValues = snapshots.map((x) => x.actualValue);
 
-        const xLabels = snapshots.map((x) => formatDateTimeString(x.dateTime));
+        const notNullInvested: number[] = invested.filter(n => n)
+        const investedMin = Math.min(...notNullInvested);
+        const investedMax = Math.max(...notNullInvested);
 
+        const notNullAv: number[] = actualValues.filter(n => n)
+        const avMin = Math.min(...notNullAv)
+        const avMax = Math.max(...notNullAv)
+
+        const yMin = Math.min(investedMin, avMin) - 30
+        const yMax = Math.max(investedMax, avMax) + 10
+
+        const xLabels = snapshots.map((x) => formatDateTimeString(x.dateTime));
         return (
             <div className={"centered-element-wrapper"}>
                 <div className={"centered-element"}>
@@ -126,15 +172,21 @@ export default function BinanceSummary(menuProps: MenuProps) {
                         width={1580}
                         height={500}
                         series={[
-                            {data: invested, connectNulls: true, showMark: false, label: 'Invested'},
-                            {data: actualValues, showMark: false, label: 'Actual value'},
+                            {data: invested, connectNulls: true, showMark: false, label: 'Invested', baseline: 60},
+                            {data: actualValues, showMark: false, label: 'Actual value', baseline: 60},
                         ]}
                         xAxis={[
                             {scaleType: 'point', data: xLabels},
 
                         ]}
+                        yAxis={[
+                            {min: yMin, max: yMax}
+                            // min: 100, // Start Y-axis at 100
+                            // max: 160, // Set an appropriate max if you want to control the range
+                        ]}
                         grid={{vertical: true, horizontal: true}}
                     />
+
                 </div>
             </div>
         );
@@ -206,7 +258,7 @@ export default function BinanceSummary(menuProps: MenuProps) {
 
         <div>
             <h2>Summary</h2>
-
+            {sumTable()}
             {SimpleLineChart()}
             {datePickers()}
 

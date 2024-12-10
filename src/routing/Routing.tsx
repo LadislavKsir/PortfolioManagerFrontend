@@ -12,6 +12,7 @@ import InvestownSummary from "../views/investown/InvestownSummary.tsx";
 import MainSummary from "../views/MainSummary.tsx";
 import {MenuProps} from "../App.tsx";
 import LockedSubscriptions from "../views/binance/LockedSubscriptions.tsx";
+import Settings from "../views/binance/Settings.tsx";
 /**
  * This component sets and manages routing in the application
  */
@@ -29,6 +30,8 @@ export default function Routing(menuProps: MenuProps) {
     const BINANCE_ORDERS_PATH = "/binance/orders"
     const BINANCE_EARN_PATH = "/binance/locked-subscriptions"
     const BINANCE_COIN_DETAIL_PATH = "/binance/coins/:code"
+
+    const APP_SETTINGS_PATH = "/settings"
 
 
     return (
@@ -73,6 +76,12 @@ export default function Routing(menuProps: MenuProps) {
 
 
                 <Route path="*" element={<NoMatch/>}/>
+
+                <Route path={APP_SETTINGS_PATH}
+                       element={
+                           <Settings  {...menuProps} />
+                       }
+                />
             </Routes>
         </div>
     );

@@ -68,7 +68,7 @@ export const overviewTablecolumns: GridColDef[] = [
         headerName: 'Actual price',
         description: '',
         width: 180,
-        valueGetter: (_, row: CoinTradesSummary) => row.actualPrice.toFixed(5),
+        valueGetter: (_, row: CoinTradesSummary) => parseFloat(row.actualPrice).toFixed(5),
     },
 
     {
@@ -85,7 +85,7 @@ export const overviewTablecolumns: GridColDef[] = [
         headerName: 'Unrealised Profit',
         description: '',
         width: 180,
-        valueGetter: (_, row: CoinTradesSummary) => row.unrealisedProfit.toFixed(5),
+        valueGetter: (_, row: CoinTradesSummary) => {console.log(row); return parseFloat(row.unrealisedProfit).toFixed(5)},
     },
     {
 

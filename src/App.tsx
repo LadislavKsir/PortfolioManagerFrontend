@@ -46,27 +46,9 @@ function App() {
     return (
         <SnackbarProvider>
             <div className="app-container">
-                {/*<Alert variant="outlined" severity="success">*/}
-                {/*    This is an outlined success Alert.*/}
-                {/*</Alert>*/}
-                {/*<Alert variant="outlined" severity="info">*/}
-                {/*    This is an outlined info Alert.*/}
-                {/*</Alert>*/}
-                {/*<Alert severity="warning">*/}
-                {/*    This is an outlined warning Alert.*/}
-                {/*</Alert>*/}
-                {/*<Alert variant="outlined" severity="error">*/}
-                {/*    This is an outlined error Alert.*/}
-                {/*</Alert>*/}
-                {/*<AutohideSnackbar autoHideDuration={2000} text={"Text"} title={"Title"}></AutohideSnackbar>*/}
-                {/*{syncButton()}*/}
-
-                {/*<ThemeProvider theme={theme}>*/}
                     <Box sx={{
                         display: 'flex',
                     }}>
-                        {/*<CssBaseline/>*/}
-
                         <AppDrawer menuComponentContent={menuComponentContent}
                                    navigationContent={navigationContent}>
                         </AppDrawer>

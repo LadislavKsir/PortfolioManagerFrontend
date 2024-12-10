@@ -1,7 +1,11 @@
 export interface CoinTradesSummaryResponse {
     coinTrades: CoinTradesSummary[],
     totalInvested: number,
-    totalActualValue: number
+    totalActualValue: number,
+
+    totalBuyPriceSum: string,
+    totalSellPriceSum: string,
+    actuallyPossibleProfit: string
 }
 
 export interface CoinTradesSummary {
@@ -9,9 +13,9 @@ export interface CoinTradesSummary {
     coinCode: string,
     holding: string,
     averageBuyPrice: string,
-    unrealisedProfit: number,
+    unrealisedProfit: string,
     realisedProfit: number,
-    actualPrice: number,
+    actualPrice: string,
     lowestBuyPrice: string,
     highestBuyPrice: string,
     totalBuyPrice: string,

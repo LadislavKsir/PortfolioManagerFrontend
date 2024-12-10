@@ -10,6 +10,7 @@ import InboxIcon from "@mui/icons-material/MoveToInbox";
 import {ListItemText, Typography} from "@mui/material";
 import List from "@mui/material/List";
 import HomeIcon from '@mui/icons-material/Home';
+import SettingsIcon from '@mui/icons-material/Settings';
 import {NavigationDefinition} from "../routing/NavigationDefinition.tsx";
 import {useNavigate} from "react-router-dom";
 interface AppDrawerProps {
@@ -52,12 +53,37 @@ export function AppDrawer(props: AppDrawerProps): JSX.Element {
         )
     }
 
+    function listItemButtonWithIcon(text: string, linkUrl: string, icon: JSX.Element): JSX.Element {
+        return (
+            <ListItem key={text} disablePadding>
+                <ListItemButton
+                    onClick={(event) => handleClick(event, linkUrl)}
+                    onContextMenu={handleRightClick}
+                >
+                    <ListItemIcon>
+                        {/*<HomeIcon sx={{ color: '#f1ecf1' }}/>*/}
+                        {icon}
+                    </ListItemIcon>
+                    <ListItemText primary={text}/>
+                </ListItemButton>
+            </ListItem>
+        )
+    }
+
+    function getSettingsIcon(): JSX.Element {
+     return ( <SettingsIcon sx={{ color: '#f1ecf1' }}/>)
+    }
+
     function fixedNavigationList(): JSX.Element {
+        const settingsIcon = getSettingsIcon();
+
         return (
             <List>
                 {/*<ListItemIcon><HomeIcon sx={{ color: '#ecf0f1' }}/></ListItemIcon>*/}
                 {/*<ListItemText primary="Home" />*/}
                 {listItemButton("Homepage", "/home")}
+                {/*{listItemButton("Settings", "/settings")}*/}
+                {listItemButtonWithIcon("Settings", "/settings", settingsIcon)}
             </List>
         )
     }

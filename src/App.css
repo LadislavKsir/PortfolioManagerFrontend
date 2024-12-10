@@ -182,3 +182,7 @@ body {
 .homepage-choice-container:hover {
     border: 5px solid darkgray;
 }
+
+.max-width-75{
+    max-width: 75%;
+}
