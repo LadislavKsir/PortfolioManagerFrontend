@@ -56,9 +56,6 @@ export default function BinanceSummary(menuProps: MenuProps) {
     ]
     const data = useFetch<CoinTradesSummaryResponse>(addParams('/binance/trades/trades-summary', listTradesSummaryParams))
 
-
-    console.log(data)
-
     const listTradesParams: Parameter[] = [{key: "pageSize", value: 30}]
     const trades = useFetch<ListTradesResponse>(addParams('/binance/trades', listTradesParams))
 

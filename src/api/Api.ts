@@ -13,7 +13,6 @@ export const axiosInstance = axios.create({
 
 axios.interceptors.response.use(
     async (response) => {
-        console.log(response)
         return response;
 
     },
