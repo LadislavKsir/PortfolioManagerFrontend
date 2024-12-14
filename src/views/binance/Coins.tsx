@@ -1,18 +1,19 @@
 // import React from "react";
 // import { useTranslation } from "react-i18next";
 import useFetch from "../../api/Api.ts";
-import {Coin, ListCoinsResponse} from "../../types/Coin.ts";
+import {Coin} from "../../types/Coin.ts";
 import { Grid} from "@mui/material";
 import {useNavigate} from "react-router-dom";
 import LoadingComponent from "../../components/LoadingComponent.tsx";
 import Box from "@mui/material/Box";
 import {styled} from "@mui/material/styles";
 import Paper from "@mui/material/Paper";
+import {PagedResponse} from "../../types/PagedResponse.ts";
 
 export default function Coins() {
 
     const navigate = useNavigate();
-    const data = useFetch<ListCoinsResponse>("/binance/coins")
+    const response = useFetch<PagedResponse<Coin>>("/binance/coins")
 
     const Item = styled(Paper)(({ theme }) => ({
         backgroundColor: '#fff',
@@ -25,7 +26,7 @@ export default function Coins() {
         }),
     }));
 
-    return (data === undefined) ? (
+    return (response === undefined) ? (
             <div>
                 <h2>Coins</h2>
                 <LoadingComponent/>
@@ -36,7 +37,7 @@ export default function Coins() {
 
                 <Box sx={{padding: '20px', height: '100vh'}}>
                     <Grid container spacing={4} justifyContent="center" alignItems="center">
-                        {data.coins.sort((a, b) => a.code.localeCompare(b.code)).map((coin: Coin) => (
+                        {response.data.sort((a, b) => a.code.localeCompare(b.code)).map((coin: Coin) => (
                             <Grid item xs={5} sm={6} md={4} lg={4} key={coin.code}>
                                 <Item
                                     key={coin.code}

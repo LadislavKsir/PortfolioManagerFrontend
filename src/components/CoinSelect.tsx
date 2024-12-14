@@ -1,7 +1,8 @@
 import {JSX} from "react";
 import {FormControl, InputLabel, MenuItem, Select, SelectChangeEvent} from "@mui/material";
 import useFetch from "../api/Api.ts";
-import {Coin, ListCoinsResponse} from "../types/Coin.ts";
+import {Coin} from "../types/Coin.ts";
+import {PagedResponse} from "../types/PagedResponse.ts";
 
 interface CoinSelectProps {
     selectedCoin: string;
@@ -14,7 +15,7 @@ export default function CoinSelect({ selectedCoin, onCoinSelect }: CoinSelectPro
         onCoinSelect(selectedCoinCode);
     };
 
-    const coins: ListCoinsResponse = useFetch<ListCoinsResponse>('/binance/coins')
+    const coins = useFetch<PagedResponse<Coin>>('/binance/coins')
 
     if (!coins) {
         return <div></div>
@@ -38,7 +39,7 @@ export default function CoinSelect({ selectedCoin, onCoinSelect }: CoinSelectPro
                         <MenuItem key={-1} value={""}>
                             -* All *-
                         </MenuItem>
-                        {coins.coins.map((coin) => (
+                        {coins.data.map((coin) => (
                             <MenuItem key={coin.id} value={coin.code}>
                                 {coin.code}
                             </MenuItem>

@@ -2,7 +2,7 @@ import useFetch from "../../api/Api.ts";
 import {DataGrid, GridColDef, GridRenderCellParams} from "@mui/x-data-grid";
 import {JSX, useEffect} from "react";
 import {MenuProps} from "../../App.tsx";
-import {DataResponse} from "../../types/DataResponse.ts";
+import {PagedResponse} from "../../types/PagedResponse.ts";
 import {LockedSubscription} from "../../types/LockedSubscription.ts";
 import {formatDate, formatDateTime} from "../../utils/DateFormatter.ts";
 import LoadingComponent from "../../components/LoadingComponent.tsx";
@@ -114,7 +114,7 @@ export default function LockedSubscriptions(menuProps: MenuProps) {
 
     ];
 
-    const lockedSubscriptions = useFetch<DataResponse<LockedSubscription>>('/binance/locked-subscriptions')
+    const lockedSubscriptions = useFetch<PagedResponse<LockedSubscription>>('/binance/locked-subscriptions')
 
     function lockedSubscriptionsTable(): JSX.Element {
         return (
