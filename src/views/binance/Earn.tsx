@@ -4,12 +4,15 @@ import {JSX, useEffect} from "react";
 import {MenuProps} from "../../App.tsx";
 import {PagedResponse} from "../../types/PagedResponse.ts";
 import {LockedSubscription} from "../../types/LockedSubscription.ts";
-import {formatDate, formatDateTime} from "../../utils/DateFormatter.ts";
+import {formatDate, formatDateString, formatDateTime} from "../../utils/DateFormatter.ts";
 import LoadingComponent from "../../components/LoadingComponent.tsx";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import SyncButton from "../../components/SyncButton.tsx";
 import {binanceNavigation} from "../../routing/NavigationDefinitionFactory.tsx";
-export default function LockedSubscriptions(menuProps: MenuProps) {
+import {LineChart} from "@mui/x-charts/LineChart";
+import {SubscriptionGroupedRewards} from "../../types/SubscriptionGroupedRewards.ts";
+
+export default function Earn(menuProps: MenuProps) {
 
     useEffect(() => {
         menuProps.setMenuComponentContent(
@@ -23,7 +26,7 @@ export default function LockedSubscriptions(menuProps: MenuProps) {
         );
         menuProps.setNavigationContent(binanceNavigation())
 
-        document.title = 'Locked subscriptions';
+        document.title = 'Earn';
     }, []);
 
 
@@ -115,6 +118,9 @@ export default function LockedSubscriptions(menuProps: MenuProps) {
     ];
 
     const lockedSubscriptions = useFetch<PagedResponse<LockedSubscription>>('/binance/locked-subscriptions')
+    const flexibleSubscriptionsRewards = useFetch<SubscriptionGroupedRewards[]>('/binance/flexible-subscriptions-grouped-rewards')
+    const lockedSubscriptionsRewards = useFetch<SubscriptionGroupedRewards[]>('/binance/locked-subscriptions-grouped-rewards')
+
 
     function lockedSubscriptionsTable(): JSX.Element {
         return (
@@ -141,12 +147,90 @@ export default function LockedSubscriptions(menuProps: MenuProps) {
         )
     }
 
+    function flexibleSubscriptionsRewardsGraph(): JSX.Element {
+        if (flexibleSubscriptionsRewards === undefined) {
+            return (<LoadingComponent/>)
+        }
+
+        const xLabels = flexibleSubscriptionsRewards.map((x) => formatDateString(x.time));
+        const series = extractSeriesFromData(flexibleSubscriptionsRewards)
+
+        return (
+            <div className={"centered-element-wrapper"}>
+                <h3>Flexible subscriptions daily rewards</h3>
+                <div className={"centered-element"}>
+                    <LineChart
+                        width={1280}
+                        height={400}
+                        series={series}
+                        xAxis={[
+                            {scaleType: 'point', data: xLabels},
+
+                        ]}
+                        grid={{vertical: true, horizontal: true}}
+                    />
+
+                </div>
+            </div>
+        )
+    }
+
+    function lockedSubscriptionsRewardsGraph(): JSX.Element {
+        if (lockedSubscriptionsRewards === undefined) {
+            return (<LoadingComponent/>)
+        }
+
+        const xLabels = lockedSubscriptionsRewards.map((x) => formatDateString(x.time));
+
+        const series = extractSeriesFromData(lockedSubscriptionsRewards)
+
+        return (
+            <div className={"centered-element-wrapper"}>
+                <h3>Locked subscriptions daily rewards</h3>
+                <div className={"centered-element"}>
+                    <LineChart
+                        width={1280}
+                        height={400}
+                        series={series}
+                        xAxis={[
+                            {scaleType: 'point', data: xLabels},
+
+                        ]}
+                        grid={{vertical: true, horizontal: true}}
+                    />
+                </div>
+            </div>
+        )
+    }
+
+
+    function extractSeriesFromData(groupedRewards: SubscriptionGroupedRewards[] ) {
+        const uniqueCoinCodes = Array.from(
+            new Set(groupedRewards.flatMap((x) => x.rewards.map((y) => y.coinCode)))
+        );
+
+        return uniqueCoinCodes.map((coinCode) => {
+            const data = groupedRewards.map((x) => {
+                const reward = x.rewards.find((y) => y.coinCode === coinCode);
+                return reward ? reward.amount : null;
+            });
+            return {
+                data,
+                connectNulls: false,
+                showMark: true,
+                label: coinCode,
+            };
+        })
+    }
+
     return (
 
         <div className={"centered-element-wrapper"}>
             <div className={"centered-element"}>
-                <h2>Locked Subscriptions</h2>
                 {/*{headTable()}*/}
+                {lockedSubscriptionsRewardsGraph()}
+                {flexibleSubscriptionsRewardsGraph()}
+                <h2>Locked subscriptions</h2>
                 {lockedSubscriptionsTable()}
             </div>
         </div>
