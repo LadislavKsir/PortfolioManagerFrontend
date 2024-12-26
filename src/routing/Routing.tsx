@@ -11,8 +11,9 @@ import PatriaSummary from "../views/patria/PatriaSummary.tsx";
 import InvestownSummary from "../views/investown/InvestownSummary.tsx";
 import MainSummary from "../views/MainSummary.tsx";
 import {MenuProps} from "../App.tsx";
-import LockedSubscriptions from "../views/binance/LockedSubscriptions.tsx";
+import Earn from "../views/binance/Earn.tsx";
 import Settings from "../views/binance/Settings.tsx";
+
 /**
  * This component sets and manages routing in the application
  */
@@ -28,7 +29,7 @@ export default function Routing(menuProps: MenuProps) {
 
     const BINANCE_COINS_PATH = "/binance/coins"
     const BINANCE_ORDERS_PATH = "/binance/orders"
-    const BINANCE_EARN_PATH = "/binance/locked-subscriptions"
+    const BINANCE_EARN_PATH = "/binance/earn"
     const BINANCE_COIN_DETAIL_PATH = "/binance/coins/:code"
 
     const APP_SETTINGS_PATH = "/settings"
@@ -67,7 +68,7 @@ export default function Routing(menuProps: MenuProps) {
 
                 <Route path={BINANCE_EARN_PATH}
                        element={
-                           <LockedSubscriptions  {...menuProps} />
+                           <Earn  {...menuProps} />
                        }
                 />
 

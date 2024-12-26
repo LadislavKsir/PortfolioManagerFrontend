@@ -13,7 +13,7 @@ export function coins(): NavigationDefinition {
 }
 
 export function earn(): NavigationDefinition {
-    return {text: "Earn", link: "/binance/locked-subscriptions"}
+    return {text: "Earn", link: "/binance/earn"}
 }
 
 export function settings(): NavigationDefinition {

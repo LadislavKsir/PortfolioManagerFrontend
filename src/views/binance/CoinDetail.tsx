@@ -33,7 +33,7 @@ export default function CoinDetail(menuProps: MenuProps) {
             {text: "Summary", link: "/binance/summary"},
             {text: "Orders", link: "/binance/orders"},
             {text: "Coins", link: "/binance/coins"},
-            {text: "Earn", link: "/binance/locked-subscriptions"},
+            {text: "Earn", link: "/binance/earn"},
         ]
         menuProps.setNavigationContent(navigationContent)
 
