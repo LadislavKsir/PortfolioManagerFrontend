@@ -5,7 +5,7 @@ import {MenuProps} from "../../App.tsx";
 import SyncButton from "../../components/SyncButton.tsx";
 import {binanceNavigation} from "../../routing/NavigationDefinitionFactory.tsx";
 
-import { TextField, FormControlLabel, Switch, Button, Grid } from "@mui/material";
+import {TextField, FormControlLabel, Switch, Button, Grid} from "@mui/material";
 import useFetch from "../../api/Api.ts";
 import {SettingsDto} from "../../types/SettingsDto.ts";
 import LoadingComponent from "../../components/LoadingComponent.tsx";
@@ -51,27 +51,27 @@ export default function Settings(menuProps: MenuProps) {
     //     }
     // };
 
-    const response = useFetch<SettingsDto>('/binance/configuration')
-    if(response===undefined){
-        return  (
+    const settingsData = useFetch<SettingsDto>('/binance/configuration')
+    if (settingsData === undefined) {
+        return (
             <div>
                 <h2>Coins</h2>
                 <LoadingComponent/>
             </div>)
     }
-    // setData(response)
 
-    // function setData(response: SettingsDto){
-    //     setApplicationBaselineDate(response.applicationBaselineDate)
-    //     setSaveSnapshots(response.saveSnapshots)
-    // }
+    function setApplicationBaselineDate(value: string) {
+        console.log("setApplicationBaselineDate: " + value)
+        settingsData.applicationBaselineDate = value
+        console.log(settingsData)
+    }
 
-    return (response === undefined) ?
-        (
-            <div>
-                <h2>Coins</h2>
-                <LoadingComponent/>
-            </div>) : (
+    function setSaveSnapshots(saveSnapshots: boolean) {
+        console.log("setSaveSnapshots: " + saveSnapshots)
+        settingsData.saveSnapshots = saveSnapshots
+    }
+
+    return (
         <div>
             <h2>Settings</h2>
             <Grid container spacing={2}>
@@ -79,8 +79,8 @@ export default function Settings(menuProps: MenuProps) {
                     <TextField
                         label="Application Baseline Date"
                         type="date"
-                        value={response.applicationBaselineDate}
-                        // onChange={(e) => setApplicationBaselineDate( e.target.value)}
+                        value={settingsData.applicationBaselineDate}
+                        onChange={(e) => setApplicationBaselineDate(e.target.value)}
                         InputLabelProps={{
                             shrink: true,
                         }}
@@ -91,8 +91,11 @@ export default function Settings(menuProps: MenuProps) {
                     <FormControlLabel
                         control={
                             <Switch
-                                checked={response.saveSnapshots}
-                                // onChange={(e) => setSaveSnapshots(saveSnapshots)}
+                                checked={settingsData.saveSnapshots}
+                                onChange={(e) => {
+                                    setSaveSnapshots(e.target.checked)
+                                    e.target.checked = !e.target.checked
+                                }}
                             />
                         }
                         label="Save Snapshots"
