@@ -13,6 +13,7 @@ import MainSummary from "../views/MainSummary.tsx";
 import {MenuProps} from "../App.tsx";
 import Earn from "../views/binance/Earn.tsx";
 import Settings from "../views/binance/Settings.tsx";
+import PortfolioDetail from "../views/portu/PortfolioDetail.tsx";
 
 /**
  * This component sets and manages routing in the application
@@ -20,9 +21,10 @@ import Settings from "../views/binance/Settings.tsx";
 export default function Routing(menuProps: MenuProps) {
 
     const SUMMARY_PATH = "/summary"
+    const PORTU = "/portu"
 
     const BINANCE_SUMMARY_PATH = "/binance" + SUMMARY_PATH
-    const PORTU_SUMMARY_PATH = "/portu" + SUMMARY_PATH
+    const PORTU_SUMMARY_PATH = PORTU + SUMMARY_PATH
     const PATRIA_SUMMARY_PATH = "/patria" + SUMMARY_PATH
     const INVESTOWN_SUMMARY_PATH = "/investown" + SUMMARY_PATH
 
@@ -32,20 +34,36 @@ export default function Routing(menuProps: MenuProps) {
     const BINANCE_EARN_PATH = "/binance/earn"
     const BINANCE_COIN_DETAIL_PATH = "/binance/coins/:code"
 
+    const PORTU_PORTFOLIO_DETAIL_PATH = PORTU+ "/portfolio/:portfolioId"
+
+
+
     const APP_SETTINGS_PATH = "/settings"
 
 
     return (
         <div>
-
             <Routes>
+                {/* GENERAL */}
                 <Route path="/" element={<HomePage/>}/>
                 <Route path="/not_auth" element={<NotAuth/>}/>
 
                 <Route path="/home" element={<HomePage/>}/>
 
+                <Route path="*" element={<NoMatch/>}/>
+
                 <Route path={SUMMARY_PATH} element={<MainSummary/>}/>
 
+                <Route path={APP_SETTINGS_PATH}
+                       element={
+                           <Settings  {...menuProps} />
+                       }
+                />
+
+                {/* PORTU */}
+                <Route path={PORTU_PORTFOLIO_DETAIL_PATH} element={<PortfolioDetail/>}/>
+
+                {/* BINANCE */}
                 <Route path={BINANCE_SUMMARY_PATH} element={
                     <BinanceSummary {...menuProps} />
                 }/>
@@ -76,13 +94,6 @@ export default function Routing(menuProps: MenuProps) {
                 }/>
 
 
-                <Route path="*" element={<NoMatch/>}/>
-
-                <Route path={APP_SETTINGS_PATH}
-                       element={
-                           <Settings  {...menuProps} />
-                       }
-                />
             </Routes>
         </div>
     );

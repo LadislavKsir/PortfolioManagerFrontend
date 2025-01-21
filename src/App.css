@@ -145,8 +145,11 @@ body {
 }
 
 .centered-element-wrapper {
-    display: inline-block;
-    /*display: flex;*/
+    display: flex;
+    gap: 20px; /* spacing between the charts */
+    justify-content: center;
+    align-items: flex-start;
+    /*max-width: 50%;*/
 }
 
 
@@ -157,13 +160,42 @@ body {
     /*display: flex;*/
 }
 
+.MuiFormGroup-root {
+    flex-wrap: wrap;
+    max-width: 920px; /* same as LineChart */
+}
+
 .centered-element-without-padding {
-    display: inline-block;
-    /*display: flex;*/
+    /*display: inline-block;*/
+    /*width: 40%;*/
+    /*!*display: flex;*!*/
+    /*flex: 1;*/
+    /*!*display: flex;*!*/
+    /*flex-direction: column;*/
+    box-sizing: border-box;
+    padding-top: 0;
+    margin-top: 0;
+    align-self: flex-start;
+
 }
 
 .left-padding {
     padding-left: 20px;
+
+}
+
+.right-padding {
+    padding-right: 20px;
+
+}
+
+.left-padding-big {
+    padding-left: 150px;
+
+}
+
+.right-padding-big {
+    padding-right: 150px;
 
 }
 
@@ -185,4 +217,11 @@ body {
 
 .max-width-75{
     max-width: 75%;
+}
+
+.dark-gray-border {
+    padding-left: 20px;
+    padding-right: 20px;
+    margin-right: 10px;
+    border: 1px solid darkgray;
 }

@@ -44,28 +44,29 @@ export default function Orders(menuProps: MenuProps) {
         setActiveTab(newValue);
     };
 
+    function iconCell(coinCode:string | undefined, index: number):JSX.Element{
+        if (coinCode) {
+            return (
+                <div className={"coin-icon-div"}>
+                    <img
+                        className={"coin-icon"}
+                        src={"/icons/" + coinCode.split(" -> ")[index] + ".png"}
+                    >
+                    </img>{coinCode}
+                </div>
+            );
+        } else {
+            return (<div></div>)
+        }
+    }
+
     const buyColumns: GridColDef[] = [
         {
             field: 'coinCodex',
             headerName: 'Coin',
             width: 175,
             valueGetter: (_: never, row: TradeOrder) => row.from + " -> " + row.to,
-            renderCell: (params: GridRenderCellParams<GridValidRowModel, string>) => {
-                if (params.value) {
-                    return (
-                        <div className={"coin-icon-div"}>
-                            <img
-                                className={"coin-icon"}
-                                src={"/icons/" + params.value.split(" -> ")[1] + ".png"}
-                            >
-                            </img>{params.value}
-                        </div>
-                    );
-                } else {
-                    return (<div></div>)
-                }
-
-            }
+            renderCell: (params: GridRenderCellParams<GridValidRowModel, string>) => iconCell(params.value, 1)
         },
         {
             field: 'buyQuantity',
@@ -84,6 +85,9 @@ export default function Orders(menuProps: MenuProps) {
             headerName: 'Price',
             type: 'number',
             width: 125,
+            valueFormatter: (value?: number) => {
+                return formatNumberValue(value)
+            },
         },
         {
             field: 'actualPrice',
@@ -168,22 +172,7 @@ export default function Orders(menuProps: MenuProps) {
             headerName: 'Coin',
             width: 175,
             valueGetter: (_: never, row: TradeOrder) => row.from + " -> " + row.to,
-            renderCell: (params: GridRenderCellParams<GridValidRowModel, string>) => {
-                if (params.value) {
-                    return (
-                        <div className={"coin-icon-div"}>
-                            <img
-                                className={"coin-icon"}
-                                src={"/icons/" + params.value.split(" -> ")[0] + ".png"}
-                            >
-                            </img>{params.value}
-                        </div>
-                    );
-                } else {
-                    return (<div></div>)
-                }
-
-            }
+            renderCell: (params: GridRenderCellParams<GridValidRowModel, string>) => iconCell(params.value, 0)
         },
         {
             field: 'sellQuantity',
@@ -202,6 +191,9 @@ export default function Orders(menuProps: MenuProps) {
             headerName: 'Price',
             type: 'number',
             width: 125,
+            valueFormatter: (value?: number) => {
+                return formatNumberValue(value)
+            },
         },
         {
             field: 'actualPrice',
@@ -214,7 +206,7 @@ export default function Orders(menuProps: MenuProps) {
         },
         {
             field: 'expireTime',
-            headerName: 'expireTime',
+            headerName: 'Expire date',
             type: 'string',
             cellClassName: (params: GridCellParams<TradeOrder, string>) => {
                 return params.row.nearingExpiration ? "nearing-expiration" : "";

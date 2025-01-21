@@ -1,20 +1,20 @@
 import useFetch from "../../api/Api.ts"
-import {DataGrid, GridRowParams} from "@mui/x-data-grid";
+import {DataGrid, GridColDef, GridRenderCellParams, GridRowParams} from "@mui/x-data-grid";
 
 import {useNavigate} from "react-router-dom";
 import {CoinTradesSummary, CoinTradesSummaryResponse} from "../../types/CoinTradesSummary.ts";
-import {ListTradesResponse} from "../../types/Trade.ts";
+import {ListTradesResponse, Trade} from "../../types/Trade.ts";
 import {JSX, useEffect, useState} from "react";
 import addParams, {Parameter} from "../../utils/UrlBuilder.ts";
-import {TableContainer, TextField} from "@mui/material";
+import { TableContainer, TextField} from "@mui/material";
 import {TradesSummarySnapshot} from "../../types/TradesSummarySnapshot.ts";
 import {LineChart} from '@mui/x-charts/LineChart';
 import isStableCoin from "../../utils/StableCoins.ts";
 import {MenuProps} from "../../App.tsx";
 import LoadingComponent from "../../components/LoadingComponent.tsx";
 
-import {formatDateTimeString} from "../../utils/DateFormatter.ts";
-import {lastTradesTableColumns, overviewTablecolumns} from "./BinanceSummaryTableDefinitions.tsx";
+import {formatDateTime, formatDateTimeString} from "../../utils/DateFormatter.ts";
+import {overviewTablecolumns} from "./BinanceSummaryTableDefinitions.tsx";
 import {binanceNavigation} from "../../routing/NavigationDefinitionFactory.tsx";
 import SyncButton from "../../components/SyncButton.tsx";
 import {removeUnncessaryDotsInValueArray} from "../../utils/Calculations.ts";
@@ -32,6 +32,105 @@ export default function BinanceSummary(menuProps: MenuProps) {
 
     const [dateFrom, setDateFrom] = useState(null);
     const [dateTo, setDateTo] = useState(null);
+
+    // const [hoveredRow, setHoveredRow] = useState<null | Trade>(null);
+    // const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+    const lastTradesTableColumns: GridColDef[] = [
+        {
+
+            field: 'from',
+            headerName: 'From',
+            type: 'string',
+            renderCell: (params: GridRenderCellParams<any, string>) => (
+                <div
+                    onMouseEnter={(e) => handleMouseEnter(e, params.row)}
+                    // onMouseLeave={debounce(handleMouseLeave, 1000)}
+                >{params.value}</div>
+            )
+        },
+        {
+
+            field: 'to',
+            headerName: 'To',
+            type: 'string'
+        },
+        {
+
+            field: 'averageBuyPrice',
+            headerName: 'Price',
+            description: '',
+            width: 180,
+            valueGetter: (_, row: Trade) => isStableCoin(row.from) ? row.inversePrice : row.price,
+        },
+        {
+
+            field: 'sellQuantity',
+            headerName: 'Quantity',
+            description: '',
+            width: 180,
+            valueGetter: (_, row: Trade) => isStableCoin(row.from) ? row.buyQuantity : row.sellQuantity,
+        },
+        {
+
+            field: 'tradeValue',
+            headerName: 'Trade value',
+            description: '',
+            width: 180,
+            valueGetter: (_, row: Trade) => isStableCoin(row.from) ? row.sellQuantity : row.buyQuantity,
+        },
+        {
+
+            field: 'date',
+            headerName: 'Date',
+            description: '',
+            width: 180,
+            type: 'dateTime',
+            valueGetter: (_, row: Trade) => new Date(row.date),
+            valueFormatter: (value?: Date) => {
+                return formatDateTime(value)
+            }
+        },
+        {
+
+            field: 'orderType',
+            headerName: 'orderType',
+            description: '',
+            width: 180,
+            type: 'string'
+        },
+    ];
+
+    const handleMouseEnter = (event: React.MouseEvent, row: Trade) => {
+        // console.log("handleMouseEnter %o", row)
+        // setHoveredRow(row);
+        // setAnchorEl(event.currentTarget);
+    };
+
+    const handleMouseLeave = () => {
+        // console.log("handleMouseLeave")
+        //
+        // setHoveredRow(null);
+        // setAnchorEl(null);
+
+    };
+
+    const debounce = (mainFunction, delay) => {
+        // Declare a variable called 'timer' to store the timer ID
+        let timer;
+
+        // Return an anonymous function that takes in any number of arguments
+        return function (...args) {
+            // Clear the previous timer to prevent the execution of 'mainFunction'
+            clearTimeout(timer);
+
+            // Set a new timer that will execute 'mainFunction' after the specified delay
+            timer = setTimeout(() => {
+                mainFunction(...args);
+            }, delay);
+        };
+    };
+
 
     useEffect(() => {
         menuProps.setMenuComponentContent(
@@ -95,7 +194,7 @@ export default function BinanceSummary(menuProps: MenuProps) {
                         <td>Sell price sum:</td>
                         <td>{data?.totalSellPriceSum}</td>
                         <td>Actual value:</td>
-                        <td className={( data.totalActualValue - data.totalInvested) < 0 ? "loss" : "profit"} >{data.totalActualValue}</td>
+                        <td className={(data.totalActualValue - data.totalInvested) < 0 ? "loss" : "profit"}>{data.totalActualValue}</td>
 
                         <td>Currently possible profit:</td>
                         <td className={getPossibleProfitClassName(data?.actuallyPossibleProfit)}>{data?.actuallyPossibleProfit}</td>
@@ -189,6 +288,17 @@ export default function BinanceSummary(menuProps: MenuProps) {
         );
     }
 
+    function getTooltipProfitValue(row: Trade): string {
+        const price = isStableCoin(row.from) ? row.inversePrice : row.price
+        const quantity = isStableCoin(row.from) ? row.buyQuantity : row.sellQuantity
+        const tradeValue = isStableCoin(row.from) ? row.sellQuantity : row.buyQuantity
+        return tradeValue
+    }
+
+    function getTooltipCoinsLabel(row: Trade): string {
+        return row.from + ' -> ' + row.to
+    }
+
     function lastTradesTable(): JSX.Element {
         return (
             (trades === undefined) ? (<LoadingComponent/>) : (
@@ -211,6 +321,30 @@ export default function BinanceSummary(menuProps: MenuProps) {
                             pageSizeOptions={[50, 100]}
                         />
                     </div>
+
+                    {/*{hoveredRow && anchorEl && (*/}
+                    {/*    <Popover*/}
+                    {/*        open={Boolean(anchorEl)}*/}
+                    {/*        anchorEl={anchorEl}*/}
+                    {/*        onClose={() => setAnchorEl(null)}*/}
+                    {/*        onMouseEnter={()=>{*/}
+                    {/*            console.log("onMouseEnter")*/}
+                    {/*        }}*/}
+                    {/*        onMouseLeave={() => {*/}
+                    {/*            console.log("onMouseLeave Popover")*/}
+                    {/*            setAnchorEl(null)*/}
+                    {/*        }}*/}
+                    {/*        anchorOrigin={{*/}
+                    {/*            vertical: 'top',*/}
+                    {/*            horizontal: 'left',*/}
+                    {/*        }}*/}
+                    {/*    >*/}
+                    {/*        <div style={{padding: '16px'}}>*/}
+                    {/*            <h4>{getTooltipCoinsLabel(hoveredRow)} </h4>*/}
+                    {/*            <p>Unrealized Profit: {getTooltipProfitValue(hoveredRow)}</p>*/}
+                    {/*        </div>*/}
+                    {/*    </Popover>*/}
+                    {/*)}*/}
                 </div>
             )
         )

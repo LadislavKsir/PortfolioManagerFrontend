@@ -1,5 +1,5 @@
-export function formatNumberValue(value: number | undefined) {
-    if (value === undefined) {
+export function formatNumberValue(value: number | undefined | null) {
+    if (value === undefined || value === null) {
         return ""
     }
 
@@ -8,7 +8,7 @@ export function formatNumberValue(value: number | undefined) {
     }
 
     if (value < 0.0009) {
-        return value.toFixed(6)
+        return value.toFixed(7)
     }
 
     if (value < 0.009) {

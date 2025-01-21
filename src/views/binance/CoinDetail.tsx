@@ -15,6 +15,7 @@ import {CoinDetailResponse} from "../../types/CoinDetailResponse.ts";
 import {removeUnncessaryDotsInValueArray} from "../../utils/Calculations.ts";
 import {NavigationDefinition} from "../../routing/NavigationDefinition.tsx";
 import {Divider} from '@mui/material';
+import {formatNumberValue} from "../../utils/ValueFormatter.ts";
 
 export default function CoinDetail(menuProps: MenuProps) {
 
@@ -199,9 +200,9 @@ export default function CoinDetail(menuProps: MenuProps) {
                         width={1280}
                         height={500}
                         series={[
-                            {data: buys, showMark: true, label: 'Buy'},
-                            {data: sells, showMark: true, label: 'Sell'},
-                            {data: actual, showMark: false, connectNulls: true, label: 'Actual'},
+                            {data: buys, showMark: true, label: 'Buy', valueFormatter: value => formatNumberValue(value)},
+                            {data: sells, showMark: true, label: 'Sell', valueFormatter: value => formatNumberValue(value)},
+                            {data: actual, showMark: false, connectNulls: true, label: 'Actual', valueFormatter: value => formatNumberValue(value)},
                         ]}
                         xAxis={[
                             {scaleType: 'point', data: labels},
