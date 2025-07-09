@@ -4,7 +4,7 @@ name: react-vite-build
 
 steps:
   - name: install-and-build
-    image: node:20-alpine
+    image: node:20-bullseye
     commands:
       - npm ci
 #      - npm run build  # runs tsc && vite build
