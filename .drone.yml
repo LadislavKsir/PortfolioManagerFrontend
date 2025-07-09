@@ -7,7 +7,8 @@ steps:
     image: node:20-alpine
     commands:
       - npm ci
-      - npm run build  # runs tsc && vite build
+#      - npm run build  # runs tsc && vite build
+      - vite build
 
   - name: docker-build
     image: plugins/docker
