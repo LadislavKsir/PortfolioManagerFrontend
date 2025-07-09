@@ -8,7 +8,7 @@ import LoadingComponent from "../../components/LoadingComponent.tsx";
 import Box from "@mui/material/Box";
 import {styled} from "@mui/material/styles";
 import Paper from "@mui/material/Paper";
-import {PagedResponse} from "../../types/PagedResponse.ts";
+import {PagedResponse} from "../../types/common/PagedResponse.ts";
 
 export default function Coins() {
 

@@ -6,7 +6,7 @@ import {TextField, FormControlLabel, Switch, Button, Grid} from "@mui/material";
 import axios from "axios";
 
 
-const API_URL = "http://localhost:8080/api/binance/configuration";
+const API_URL = "http://192.168.0.106:8080/api/binance/configuration";
 
 export default function Settings(menuProps: MenuProps) {
     const [config, setConfig] = useState({
@@ -75,7 +75,7 @@ export default function Settings(menuProps: MenuProps) {
 
         try {
             setIsLoading(true);
-            const url = "http://localhost:8080/api/binance/trades/import-update-dates?fileType=BINANCE_EXCEL_EXPORT"
+            const url = "http://192.168.0.106:8080/api/binance/trades/import-update-dates?fileType=BINANCE_EXCEL_EXPORT"
             await axios.post(url, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",

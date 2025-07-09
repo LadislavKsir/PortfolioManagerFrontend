@@ -22,7 +22,7 @@ const PortfolioSummaryList = ({ selectedIds }) => {
 
         const fetchData = async () => {
             try {
-                const response = await axios.get<PortfolioSummary[]>('http://localhost:8081/portfolio/summary', {
+                const response = await axios.get<PortfolioSummary[]>('http://192.168.0.106:8081/portfolio/summary', {
                     params: { portfolioIds: selectedIds },
                     paramsSerializer: (params) =>
                         params.portfolioIds.map((id: any) => `portfolioIds=${id}`).join('&'),

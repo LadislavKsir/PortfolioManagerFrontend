@@ -2,9 +2,9 @@ import axios, {AxiosError} from "axios";
 import useSWR from "swr";
 import {errorNotification, fetchOkNotification} from "../utils/NotificationsHelper.ts";
 
-const BASE_URL = 'http://localhost:8080/api'
+const BASE_URL = 'http://192.168.0.106:8080/api'
 export const axiosInstance = axios.create({
-    baseURL: 'http://localhost:8080',
+    baseURL: 'http://192.168.0.106:8080',
     headers: {
         Accept: "application/json",
         "Content-Type": "application/json"
@@ -89,6 +89,7 @@ const useFetch = <T>(url: string): T => {
             .get(url)
             .then((res: { data: T; }) => res.data as T)
             .catch((err: AxiosError) => {
+                console.log("Error fetching data:", err);
                 errorNotification(err.code + ": " + err.message)
                 throw err;
             });

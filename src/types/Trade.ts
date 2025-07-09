@@ -1,7 +1,4 @@
-export interface ListTradesResponse {
-    trades: Trade[]
 
-}
 export interface Trade {
     id: string,
     from: string,

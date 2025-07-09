@@ -3,7 +3,10 @@ export function formatDateString(date: string) {
 
 }
 
-export function formatDateTimeString(date: string) {
+export function formatDateTimeString(date: string | undefined) {
+    if( date === undefined) {
+        return "";
+    }
     return formatDateTime(new Date(date))
 
 }

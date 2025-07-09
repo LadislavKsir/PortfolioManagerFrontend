@@ -8,7 +8,7 @@ export default function PortuSummary() {
     const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
-        axios.get("http://localhost:8081/portfolio").then((res) => {
+        axios.get("http://192.168.0.106:8081/portfolio").then((res) => {
             const data = res.data.data;
 
             setSelectedIds(data.map((p: PortfolioItem) => p.id)); // ✅ all selected by default

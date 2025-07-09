@@ -1,6 +1,5 @@
 import useFetch from "../../api/Api.ts";
-import {ListTradesResponse, Trade} from "../../types/Trade.ts";
-import {DataGrid} from "@mui/x-data-grid";
+import {Trade} from "../../types/Trade.ts";
 import addParams, {addPathVariable, Parameter} from "../../utils/UrlBuilder.ts";
 import {JSX, useEffect} from "react";
 import isStableCoin from "../../utils/StableCoins.ts";
@@ -10,19 +9,21 @@ import {LineChart} from "@mui/x-charts";
 import {TradesSummarySnapshot} from "../../types/TradesSummarySnapshot.ts";
 import {formatDateTimeString} from "../../utils/DateFormatter.ts";
 import LoadingComponent from "../../components/LoadingComponent.tsx";
-import {coinDetailCoinTradesTableDefinition} from "./CoinDetailTableDefinitions.tsx";
 import {CoinDetailResponse} from "../../types/CoinDetailResponse.ts";
 import {removeUnncessaryDotsInValueArray} from "../../utils/Calculations.ts";
 import {NavigationDefinition} from "../../routing/NavigationDefinition.tsx";
 import {Divider} from '@mui/material';
 import {formatNumberValue} from "../../utils/ValueFormatter.ts";
+import {PagedResponse} from "../../types/common/PagedResponse.ts";
+import DataTable, {ColumnDefinition} from "../../components/common/DataTable.tsx";
+import {urlBuilder} from "../../utils/UrlBuilderNew.ts";
 
 export default function CoinDetail(menuProps: MenuProps) {
 
     const {code} = useParams() as { code: string };
     const params: Parameter[] = [{key: 'coinCodes', value: code}]
 
-    const coinTrades = useFetch<ListTradesResponse>(addParams('/binance/trades', params))
+    const coinTrades = useFetch<PagedResponse<Trade>>(addParams('/binance/trades', params))
 
     const snapshotsParams: Parameter[] = [{key: 'coinCodes', value: code}, {key: 'onlyOverview', value: false}]
     const snapshots: TradesSummarySnapshot[] = useFetch<TradesSummarySnapshot[]>(addParams('/binance/trades/summary-snapshots', snapshotsParams))
@@ -41,7 +42,7 @@ export default function CoinDetail(menuProps: MenuProps) {
         document.title = code + ' trades detail';
     }, []);
 
-    if (coinTrades === undefined || coinDetail === undefined) {
+    if (coinDetail === undefined) {
         return (<div></div>)
     }
 
@@ -81,7 +82,7 @@ export default function CoinDetail(menuProps: MenuProps) {
     }
 
     const actualValue = parseFloat(coinTradeSummary.holding) * coinTradeSummary.actualPrice
-    const rows = coinTrades.trades
+    const rows = coinTrades.data
 
     function headTableUpd(): JSX.Element {
         const codeWithLink = (chartUrl: string | undefined): JSX.Element => {
@@ -136,29 +137,6 @@ export default function CoinDetail(menuProps: MenuProps) {
                 </tr>
                 </tbody>
             </table>
-            // </div>
-
-        )
-    }
-
-    function coinTradesTable(): JSX.Element {
-        return (
-            <DataGrid
-                rows={rows}
-                columns={coinDetailCoinTradesTableDefinition}
-                initialState={{
-                    pagination: {
-                        paginationModel: {page: 0, pageSize: 50},
-                    },
-                    sorting: {
-                        sortModel: [{field: 'date', sort: 'desc'}],
-                    }
-                }}
-                getRowClassName={(params) => {
-                    return (isStableCoin(params.row.from)) ? "profit" : "loss";
-                }}
-                pageSizeOptions={[50, 100]}
-            />
         )
     }
 
@@ -200,9 +178,25 @@ export default function CoinDetail(menuProps: MenuProps) {
                         width={1280}
                         height={500}
                         series={[
-                            {data: buys, showMark: true, label: 'Buy', valueFormatter: value => formatNumberValue(value)},
-                            {data: sells, showMark: true, label: 'Sell', valueFormatter: value => formatNumberValue(value)},
-                            {data: actual, showMark: false, connectNulls: true, label: 'Actual', valueFormatter: value => formatNumberValue(value)},
+                            {
+                                data: buys,
+                                showMark: true,
+                                label: 'Buy',
+                                valueFormatter: value => formatNumberValue(value)
+                            },
+                            {
+                                data: sells,
+                                showMark: true,
+                                label: 'Sell',
+                                valueFormatter: value => formatNumberValue(value)
+                            },
+                            {
+                                data: actual,
+                                showMark: false,
+                                connectNulls: true,
+                                label: 'Actual',
+                                valueFormatter: value => formatNumberValue(value)
+                            },
                         ]}
                         xAxis={[
                             {scaleType: 'point', data: labels},
@@ -213,6 +207,79 @@ export default function CoinDetail(menuProps: MenuProps) {
                 </div>
             </div>
         );
+    }
+
+    function getTextColor(row: Trade) {
+        if (isStableCoin(row.from)) {
+            if (row.inversePrice > coinTradeSummary?.actualPrice) {
+                return 'green'
+            } else {
+                // return 'limegreen'
+                return 'green'
+            }
+        } else {
+            return 'crimson';
+        }
+    }
+
+    function getFontWeight(row: Trade) {
+        if (isStableCoin(row.from) && row.inversePrice < coinTradeSummary?.actualPrice) {
+            return 800
+        } else {
+            return 600
+        }
+    }
+
+    function tradesTable(): JSX.Element {
+        const columns: ColumnDefinition<Trade>[] = [
+            {key: 'from', label: 'From', align: 'left'},
+            {key: 'to', label: 'To', align: 'left'},
+            {
+                key: 'averageBuyPrice', label: 'Price', align: 'left', valueGetter: (row: Trade) => {
+                    return isStableCoin(row.from) ? row.inversePrice : row.price
+                }
+            },
+            {
+                key: 'sellQuantity', label: 'Quantity', align: 'left', valueGetter: (row: Trade) => {
+                    return isStableCoin(row.from) ? row.buyQuantity : row.sellQuantity
+                }
+            },
+            {
+                key: 'tradeValue', label: 'Trade value', align: 'right', valueGetter: (row: Trade) => {
+                    return isStableCoin(row.from) ? row.sellQuantity : row.buyQuantity
+                }
+            },
+            {
+                key: 'date', label: 'Date', align: 'right', valueFormatter: (value?: string) => {
+                    return formatDateTimeString(value)
+                }
+            },
+            {key: 'orderType', label: 'Type', align: 'right'}
+        ];
+
+
+        const url = urlBuilder(`http://192.168.0.106:8080/api/binance/trades`)
+            .addParameter("coinCodes", code)
+            .build()
+
+
+
+        return (
+            <DataTable<Trade> columns={columns}
+                              data={null}
+                              dataSourceUrl={url}
+                              getRowId={(row) => row.id}
+                              paged={true}
+                              getRowSx={(row) => ({
+                                  '& .MuiTableCell-root': {
+                                      color: getTextColor(row),
+                                      fontWeight: getFontWeight(row),
+
+                                  },
+                              })}
+            />
+        )
+
     }
 
     return (
@@ -232,8 +299,8 @@ export default function CoinDetail(menuProps: MenuProps) {
                 <h2>Graph of realised trades</h2>
                 {tradePricesChart()}
 
-                <h4>Coin trades</h4>
-                {coinTradesTable()}
+                <h3>Trades</h3>
+                {tradesTable()}
             </div>
         </div>
 

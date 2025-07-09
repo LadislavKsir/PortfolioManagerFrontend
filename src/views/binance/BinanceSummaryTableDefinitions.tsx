@@ -1,8 +1,5 @@
 import {GridColDef, GridRenderCellParams, GridValidRowModel} from "@mui/x-data-grid";
 import {CoinTradesSummary} from "../../types/CoinTradesSummary.ts";
-import {Trade} from "../../types/Trade.ts";
-import isStableCoin from "../../utils/StableCoins.ts";
-import {formatDateTime} from "../../utils/DateFormatter.ts";
 import {getCurrentPercentFromCoinTradesSummary} from "../../utils/Calculations.ts";
 
 export const overviewTablecolumns: GridColDef[] = [
@@ -104,63 +101,5 @@ export const overviewTablecolumns: GridColDef[] = [
         valueGetter: (_, row: CoinTradesSummary) => parseFloat(row.highestBuyPrice).toFixed(5),
     },
 ];
-//
-// export const lastTradesTableColumns: GridColDef[] = [
-//     {
-//
-//         field: 'from',
-//         headerName: 'From',
-//         type: 'string'
-//     },
-//     {
-//
-//         field: 'to',
-//         headerName: 'To',
-//         type: 'string'
-//     },
-//     {
-//
-//         field: 'averageBuyPrice',
-//         headerName: 'Price',
-//         description: '',
-//         width: 180,
-//         valueGetter: (_, row: Trade) => isStableCoin(row.from) ? row.inversePrice : row.price,
-//     },
-//     {
-//
-//         field: 'sellQuantity',
-//         headerName: 'Quantity',
-//         description: '',
-//         width: 180,
-//         valueGetter: (_, row: Trade) => isStableCoin(row.from) ? row.buyQuantity : row.sellQuantity,
-//     },
-//     {
-//
-//         field: 'tradeValue',
-//         headerName: 'Trade value',
-//         description: '',
-//         width: 180,
-//         valueGetter: (_, row: Trade) => isStableCoin(row.from) ? row.sellQuantity : row.buyQuantity,
-//     },
-//     {
-//
-//         field: 'date',
-//         headerName: 'Date',
-//         description: '',
-//         width: 180,
-//         type: 'dateTime',
-//         valueGetter: (_, row: Trade) => new Date(row.date),
-//         valueFormatter: (value?: Date) => {
-//             return formatDateTime(value)
-//         }
-//     },
-//     {
-//
-//         field: 'orderType',
-//         headerName: 'orderType',
-//         description: '',
-//         width: 180,
-//         type: 'string'
-//     },
-// ];
+
 

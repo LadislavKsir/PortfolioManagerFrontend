@@ -2,7 +2,7 @@ import {JSX} from "react";
 import {FormControl, InputLabel, MenuItem, Select, SelectChangeEvent} from "@mui/material";
 import useFetch from "../api/Api.ts";
 import {Coin} from "../types/Coin.ts";
-import {PagedResponse} from "../types/PagedResponse.ts";
+import {PagedResponse} from "../types/common/PagedResponse.ts";
 
 interface CoinSelectProps {
     selectedCoin: string;

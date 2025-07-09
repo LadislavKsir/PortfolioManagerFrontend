@@ -13,7 +13,7 @@ export default function PortfolioDetail() {
     const [loading, setLoading] = useState<boolean>(true);
 
     function loadPortfolioData() {
-        axios.get(`http://localhost:8081/portfolio/${portfolioId}/summary`).then((res) => {
+        axios.get(`http://192.168.0.106:8081/portfolio/${portfolioId}/summary`).then((res) => {
             const data = res.data;
             setPortfolioData(data);
             setLoading(false);
@@ -74,7 +74,7 @@ export default function PortfolioDetail() {
         return (
             <DataTable<Transaction> columns={columns}
                                     data={null}
-                                    dataSourceUrl={`http://localhost:8081/portfolio/${portfolioId}/transactions`}
+                                    dataSourceUrl={`http://192.168.0.106:8081/portfolio/${portfolioId}/transactions`}
                                     getRowId={(row) => row.id}
                                     paged={true}
             />

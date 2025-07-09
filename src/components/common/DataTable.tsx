@@ -17,7 +17,7 @@ export interface ColumnDefinition<T> {
     label: string;
     align?: "left" | "right" | "center";
     valueGetter?: (row: T) => string | number | JSX.Element;
-    // align?: string;
+    valueFormatter?: (value: any) => string | number | JSX.Element;
 }
 
 
@@ -85,12 +85,13 @@ export default function DataTable<T>(props: DataTableProps<T>): JSX.Element {
         )
     }
 
-    const getDisplayValue = (value: any): string | number | JSX.Element => {
+    const getDisplayValue = (value: any, valueFormatter: ((value: (string | number)) => (string | number | React.JSX.Element)) | undefined): string | number | React.JSX.Element => {
         if (value === null || value === undefined) return '-';
 
-        if (typeof value === 'number') {
+        if (valueFormatter) {
+            return valueFormatter(value);
+        } else if (typeof value === 'number') {
             return value.toFixed(4);
-
         }
 
         return value;
@@ -98,14 +99,28 @@ export default function DataTable<T>(props: DataTableProps<T>): JSX.Element {
 
     return (
         <div>
-            <TableContainer component={Paper} sx={{mt: 4}}>
+            <TableContainer
+                component={Paper}
+                elevation={3}
+                sx={{
+                    mt: 4,
+                    borderRadius: 2,
+                    overflow: 'hidden',
+                }}
+            >
                 <Table size="small">
                     <TableHead>
                         <TableRow>
                             {props.columns.map((col) => (
                                 <TableCell key={col.label}
                                            align={col.align}
-                                           sx={{fontWeight: 'bold'}}
+                                           sx={{
+                                               fontWeight: 'bold',
+                                               backgroundColor: 'primary.main',
+                                               color: 'white',
+                                               borderBottom: '2px solid',
+                                               borderColor: 'divider',
+                                           }}
                                 >
                                     {col.label}
                                 </TableCell>
@@ -116,9 +131,21 @@ export default function DataTable<T>(props: DataTableProps<T>): JSX.Element {
                         {data.map((row) => (
                             <TableRow
                                 key={props.getRowId(row)}
-                                sx={props.getRowSx?.(row)}
+                                sx={{
+                                    ...(props.getRowSx?.(row) ?? {}),
+                                    ...(!props.getRowSx && {
+                                        '&:nth-of-type(odd)': {
+                                            backgroundColor: 'grey.50',
+                                        },
+                                        '&:hover': {
+                                            backgroundColor: 'primary.light',
+                                            cursor: 'pointer',
+                                        },
+                                    }),
+                                }}
                             >
                                 {props.columns.map((col) => {
+                                    // @ts-expect-error vvv
                                     const value = col.valueGetter ? col.valueGetter(row) : (row as T)[col.key];
 
                                     return (
@@ -126,7 +153,7 @@ export default function DataTable<T>(props: DataTableProps<T>): JSX.Element {
                                             key={col.key}
                                             align={col.align as "left" | "right" | "center"}
                                         >
-                                            {getDisplayValue(value)}
+                                            {getDisplayValue(value, col.valueFormatter)}
                                         </TableCell>
                                     );
                                 })}

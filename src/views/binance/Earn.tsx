@@ -2,7 +2,7 @@ import useFetch from "../../api/Api.ts";
 import {DataGrid, GridColDef, GridRenderCellParams, GridValidRowModel} from "@mui/x-data-grid";
 import {JSX, useEffect, useState} from "react";
 import {MenuProps} from "../../App.tsx";
-import {PagedResponse} from "../../types/PagedResponse.ts";
+import {PagedResponse} from "../../types/common/PagedResponse.ts";
 import {LockedSubscription} from "../../types/LockedSubscription.ts";
 import {formatDate, formatDateString, formatDateTime} from "../../utils/DateFormatter.ts";
 import LoadingComponent from "../../components/LoadingComponent.tsx";
