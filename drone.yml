@@ -1,0 +1,42 @@
+kind: pipeline
+type: docker
+name: react-vite-build
+
+steps:
+  - name: install-and-build
+    image: node:20-alpine
+    commands:
+      - npm ci
+      - npm run build  # runs tsc && vite build
+
+  - name: docker-build
+    image: plugins/docker
+    settings:
+      repo: portu-manager_fe
+      tags: latest
+      dockerfile: Dockerfile
+      context: .
+      push: false
+      dry_run: true
+    volumes:
+      - name: docker-sock
+        path: /var/run/docker.sock
+    when:
+      branch:
+        - master
+        - main
+
+  - name: deploy
+    image: docker:cli
+    volumes:
+      - name: docker-sock
+        path: /var/run/docker.sock
+    commands:
+      - docker stop portu-manager_fe || true
+      - docker rm portu-manager_fe || true
+      - docker run -d --name portu-manager_fe --network shared-db-net -p 8080:80 portu-manager_fe:latest
+
+volumes:
+  - name: docker-sock
+    host:
+      path: /var/run/docker.sock
