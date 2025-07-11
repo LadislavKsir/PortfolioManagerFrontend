@@ -5,13 +5,17 @@ name: react-vite-build
 steps:
   - name: install-and-build
     image: node:20-bullseye
+    environment:
+      ROLLUP_NO_NATIVE: "true"
     commands:
-      - rm -rf node_modules
-      - npm install --ignore-optional
+      - npm ci
       - npx vite build
-#      - npm ci
-##      - npm run build  # runs tsc && vite build
-#      - npx vite build
+  #      - rm -rf node_modules
+  #      - npm install --ignore-optional
+  #      - npx vite build
+  #      - npm ci
+  ##      - npm run build  # runs tsc && vite build
+  #      - npx vite build
 
   - name: docker-build
     image: plugins/docker
