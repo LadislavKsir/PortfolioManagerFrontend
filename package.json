@@ -18,7 +18,7 @@
     "@mui/x-charts": "^7.8.0",
     "@mui/x-data-grid": "^7.4.0",
     "@mui/x-date-pickers": "^7.19.0",
-    "axios": "1.8.2",
+    "axios": "^1.6.8",
     "dayjs": "^1.11.13",
     "notistack": "^3.0.1",
     "react": "^18.2.0",
@@ -45,6 +45,6 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.6",
     "typescript": "^5.2.2",
-    "vite": "6.3.4"
+    "vite": "^5.2.0"
   }
 }
