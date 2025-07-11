@@ -42,7 +42,7 @@ steps:
     commands:
       - docker stop portu-manager_fe || true
       - docker rm portu-manager_fe || true
-      - docker run -d --name portu-manager_fe --network shared-db-net -p 8080:80 portu-manager_fe:latest
+      - docker run -d --name portu-manager_fe --network shared-db-net -p 80:80 portu-manager_fe:latest
 
 volumes:
   - name: docker-sock
