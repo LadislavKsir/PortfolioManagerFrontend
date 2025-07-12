@@ -20,7 +20,7 @@ steps:
   - name: docker-build
     image: plugins/docker
     settings:
-      repo: portu-manager_fe
+      repo: portfoliomanager_fe
       tags: latest
       dockerfile: Dockerfile
       context: .
@@ -40,9 +40,9 @@ steps:
       - name: docker-sock
         path: /var/run/docker.sock
     commands:
-      - docker stop portu-manager_fe || true
-      - docker rm portu-manager_fe || true
-      - docker run -d --name portu-manager_fe --network shared-db-net -p 81:80 portu-manager_fe:latest
+      - docker stop portfoliomanager_fe || true
+      - docker rm portfoliomanager_fe || true
+      - docker run -d --name portfoliomanager_fe --network shared-db-net -p 81:80 portfoliomanager_fe:latest
 
 volumes:
   - name: docker-sock
