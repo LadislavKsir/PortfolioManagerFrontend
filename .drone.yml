@@ -17,6 +17,14 @@ steps:
   ##      - npm run build  # runs tsc && vite build
   #      - npx vite build
 
+  - name: cleanup-old-image
+    image: docker:cli
+    volumes:
+      - name: docker-sock
+        path: /var/run/docker.sock
+    commands:
+      - docker image rm portfoliomanager_fe:latest || true
+
   - name: docker-build
     image: plugins/docker
     settings:
