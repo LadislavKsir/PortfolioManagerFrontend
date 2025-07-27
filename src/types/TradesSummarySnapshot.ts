@@ -1,6 +1,7 @@
 export interface TradesSummarySnapshot {
     dateTime: string,
     actualValue: number,
-    invested: number
+    invested: number,
+    coinPrice: number,
 
 }

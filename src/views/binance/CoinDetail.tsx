@@ -25,9 +25,12 @@ export default function CoinDetail(menuProps: MenuProps) {
 
     const coinTrades = useFetch<PagedResponse<Trade>>(addParams('/binance/trades', params))
 
-    const snapshotsParams: Parameter[] = [{key: 'coinCodes', value: code}, {key: 'onlyOverview', value: false}]
-    const snapshots: TradesSummarySnapshot[] = useFetch<TradesSummarySnapshot[]>(addParams('/binance/trades/summary-snapshots', snapshotsParams))
 
+    const snapshotUrl = urlBuilder('/binance/trades/summary-snapshots')
+        .addParameter("coinCodes", code)
+        .addParameter('onlyOverview', false)
+        .build();
+    const snapshots: TradesSummarySnapshot[] = useFetch<TradesSummarySnapshot[]>(snapshotUrl)
     const coinDetail = useFetch<CoinDetailResponse>(addPathVariable('/binance/trades/coin-summary', code))
 
     useEffect(() => {
@@ -140,36 +143,60 @@ export default function CoinDetail(menuProps: MenuProps) {
         )
     }
 
+    function isTradesSummarySnapshot(obj: any): obj is TradesSummarySnapshot {
+        return obj && typeof obj.actualValue === 'number';
+    }
+
+    function isTrade(obj: any): obj is Trade {
+        return obj && typeof obj.id === 'string';
+    }
+
     function tradePricesChart() {
         if (snapshots === undefined) {
             return (<LoadingComponent/>)
         }
 
+        const filteredSnapshots = snapshots.filter((x) => x.coinPrice !== null)
+
         const data = [...rows].sort(function (a, b) {
             return (new Date(b.date).valueOf() - new Date(a.date).valueOf());
         }).reverse()
 
+        const combined = [
+            ...data.map(o => ({...o, _normalizedDate: new Date(o.date)})),
+            ...filteredSnapshots.map(o => ({...o, _normalizedDate: new Date(o.dateTime)})),
+        ];
+
+        const dataNew = combined.sort(function (a, b) {
+            return (new Date(b._normalizedDate).valueOf() - new Date(a._normalizedDate).valueOf());
+        }).reverse()
+
         const buys: (number | null)[] = []
         const sells: (number | null)[] = []
-        let actual: (number | null)[] = []
+        const price: (number | null)[] = []
         const labels: (string)[] = []
 
-        data.forEach((trade: Trade) => {
-            actual.push(coinTradeSummary.actualPrice)
+            for (const item of dataNew) {
+                // actual.push(coinTradeSummary.actualPrice)
+                if (isTradesSummarySnapshot(item)) {
+                    // item.doSomething();
+                    price.push(item.coinPrice)
+                } else if (isTrade(item)) {
+                    if (isStableCoin(item.from)) {
+                        buys.push(item.inversePrice)
+                        sells.push(null)
+                    } else {
+                        buys.push(null)
+                        sells.push(item.price)
+                    }
 
-            if (isStableCoin(trade.from)) {
-                buys.push(trade.inversePrice)
-                sells.push(null)
-            } else {
-                buys.push(null)
-                sells.push(trade.price)
+                    price.push(null)
+                } else {
+                    console.log("Unknown type", item);
+                }
+                labels.push(formatDateTimeString(item._normalizedDate))
+
             }
-            labels.push(formatDateTimeString(trade.date))
-        })
-
-        actual = actual.map((num, index) => {
-            return (index === 0 || index === actual.length - 1) ? num : null;
-        });
 
         return (
             <div className={"centered-element-wrapper"}>
@@ -191,10 +218,10 @@ export default function CoinDetail(menuProps: MenuProps) {
                                 valueFormatter: value => formatNumberValue(value)
                             },
                             {
-                                data: actual,
+                                data: price,
                                 showMark: false,
                                 connectNulls: true,
-                                label: 'Actual',
+                                label: 'Price',
                                 valueFormatter: value => formatNumberValue(value)
                             },
                         ]}
@@ -263,7 +290,6 @@ export default function CoinDetail(menuProps: MenuProps) {
             .build()
 
 
-
         return (
             <DataTable<Trade> columns={columns}
                               data={null}
@@ -303,6 +329,5 @@ export default function CoinDetail(menuProps: MenuProps) {
                 {tradesTable()}
             </div>
         </div>
-
     );
 }

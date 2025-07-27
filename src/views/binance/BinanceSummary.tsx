@@ -5,7 +5,7 @@ import {useNavigate} from "react-router-dom";
 import {CoinTradesSummary, CoinTradesSummaryResponse} from "../../types/CoinTradesSummary.ts";
 import {Trade} from "../../types/Trade.ts";
 import {JSX, useEffect, useState} from "react";
-import {TableContainer} from "@mui/material";
+import {Box, Card, CardContent, Grid, TableContainer, Typography} from "@mui/material";
 
 import isStableCoin from "../../utils/StableCoins.ts";
 import {MenuProps} from "../../App.tsx";
@@ -47,6 +47,37 @@ export default function BinanceSummary(menuProps: MenuProps) {
     const data = useFetch<CoinTradesSummaryResponse>(url)
 
 
+    function sumTableNew(): JSX.Element {
+        return (data === undefined) ?
+            <LoadingComponent/> : (
+                <Box mt={4}>
+                    <Grid container spacing={2} justifyContent="center" alignItems="stretch">
+                        <Grid item xs={12} sm={12} md={4} key={"a"}>
+                            <Card variant="outlined" sx={{ height: '100%' }}>
+                                <CardContent>
+                                    <Typography variant="body2" align="left">💲 Buy price
+                                        sum: {data?.totalBuyPriceSum}</Typography>
+                                    <Typography variant="body2" align="left">💰 Sell price
+                                        sum: {data?.totalSellPriceSum}</Typography>
+                                </CardContent>
+                            </Card>
+                        </Grid>
+                        <Grid item xs={12} sm={12} md={4} key={"a"}>
+                            <Card variant="outlined" sx={{ height: '100%' }}>
+                                <CardContent>
+                                    <Typography variant="body2" align="left">💸
+                                        Invested: {data.totalInvested}</Typography>
+                                    <Typography variant="body2" align="left">🧾 Actual
+                                        value: {data.totalActualValue}</Typography>
+                                    <Typography variant="body2" align="left"> 📈 Currently possible
+                                        profit: {data?.actuallyPossibleProfit}</Typography>
+                                </CardContent>
+                            </Card>
+                        </Grid>
+                    </Grid>
+                </Box>
+            );
+    }
 
     function sumTable(): JSX.Element {
         const getPossibleProfitClassName = (possibleProfit: string | undefined): string => {
@@ -158,8 +189,10 @@ export default function BinanceSummary(menuProps: MenuProps) {
     return (
         <div>
             <h2>Summary</h2>
-            {sumTable()}
-            { <SummarySnapshots/>}
+
+            {sumTableNew()}
+            {/*{sumTable()}*/}
+            {<SummarySnapshots/>}
 
             <h3>Overview</h3>
             {overviewTable()}
