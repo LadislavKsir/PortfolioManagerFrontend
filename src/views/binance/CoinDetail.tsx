@@ -151,6 +151,22 @@ export default function CoinDetail(menuProps: MenuProps) {
         return obj && typeof obj.id === 'string';
     }
 
+    function reduceToHourly(data) {
+        const hourly = [];
+        for (let i = 0; i < data.length; i += 6) {
+            const group = data.slice(i, i + 6);
+            if (group.length < 6) break; // skip incomplete hour
+
+            const avgCoinPrice = group.reduce((sum, s) => sum + s.coinPrice, 0) / group.length;
+
+            hourly.push({
+                dateTime: group[0].dateTime, // use first timestamp as representative
+                coinPrice: avgCoinPrice
+            });
+        }
+        return hourly;
+    }
+
     function tradePricesChart() {
         if (snapshots === undefined) {
             return (<LoadingComponent/>)
@@ -162,9 +178,11 @@ export default function CoinDetail(menuProps: MenuProps) {
             return (new Date(b.date).valueOf() - new Date(a.date).valueOf());
         }).reverse()
 
+        const hourlySnapshots = reduceToHourly(filteredSnapshots);
+
         const combined = [
             ...data.map(o => ({...o, _normalizedDate: new Date(o.date)})),
-            ...filteredSnapshots.map(o => ({...o, _normalizedDate: new Date(o.dateTime)})),
+            ...hourlySnapshots.map(o => ({...o, _normalizedDate: new Date(o.dateTime)})),
         ];
 
         const dataNew = combined.sort(function (a, b) {
@@ -176,27 +194,24 @@ export default function CoinDetail(menuProps: MenuProps) {
         const price: (number | null)[] = []
         const labels: (string)[] = []
 
-            for (const item of dataNew) {
-                // actual.push(coinTradeSummary.actualPrice)
-                if (isTradesSummarySnapshot(item)) {
-                    // item.doSomething();
-                    price.push(item.coinPrice)
-                } else if (isTrade(item)) {
-                    if (isStableCoin(item.from)) {
-                        buys.push(item.inversePrice)
-                        sells.push(null)
-                    } else {
-                        buys.push(null)
-                        sells.push(item.price)
-                    }
-
-                    price.push(null)
+        for (const item of dataNew) {
+            if (isTrade(item)) {
+                if (isStableCoin(item.from)) {
+                    buys.push(item.inversePrice)
+                    sells.push(null)
                 } else {
-                    console.log("Unknown type", item);
+                    buys.push(null)
+                    sells.push(item.price)
                 }
-                labels.push(formatDateTimeString(item._normalizedDate))
-
+                price.push(null)
+            } else{
+                price.push(item.coinPrice)
+                buys.push(null)
+                sells.push(null)
             }
+            labels.push(formatDateTimeString(item._normalizedDate))
+
+        }
 
         return (
             <div className={"centered-element-wrapper"}>
