@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import axios from "axios";
 import {useParams} from "react-router-dom";
 import DataTable, {ColumnDefinition} from "../../components/common/DataTable.tsx";
@@ -12,18 +12,18 @@ export default function PortfolioDetail() {
     const [portfolioData, setPortfolioData] = useState<PortfolioSummary | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
 
-    function loadPortfolioData() {
+    const loadPortfolioData = useCallback(() => {
         axios.get(`http://192.168.0.106:8081/portfolio/${portfolioId}/summary`).then((res) => {
             const data = res.data;
             setPortfolioData(data);
             setLoading(false);
         });
-    }
+    }, [portfolioId]);
 
     useEffect(() => {
         loadPortfolioData();
         // loadTransactions();
-    }, []);
+    }, [loadPortfolioData]);
 
     function assetSummaryTable() {
         const columns: ColumnDefinition<AssetSummary>[] = [

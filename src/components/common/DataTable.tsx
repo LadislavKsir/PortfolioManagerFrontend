@@ -88,13 +88,13 @@ export default function DataTable<T>(props: DataTableProps<T>): JSX.Element {
     const getDisplayValue = (value: unknown, valueFormatter: ((value: (string | number)) => (string | number | React.JSX.Element)) | undefined): string | number | React.JSX.Element => {
         if (value === null || value === undefined) return '-';
 
-        if (valueFormatter) {
+        if (valueFormatter && (typeof value === 'string' || typeof value === 'number')) {
             return valueFormatter(value);
         } else if (typeof value === 'number') {
             return value.toFixed(4);
         }
 
-        return value;
+        return String(value);
     };
 
     return (

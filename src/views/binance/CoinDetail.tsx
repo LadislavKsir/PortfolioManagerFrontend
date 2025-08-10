@@ -1,7 +1,7 @@
 import useFetch from "../../api/Api.ts";
 import {Trade} from "../../types/Trade.ts";
 import addParams, {addPathVariable, Parameter} from "../../utils/UrlBuilder.ts";
-import {JSX, useEffect} from "react";
+import {JSX, useCallback, useEffect} from "react";
 import isStableCoin from "../../utils/StableCoins.ts";
 import {useParams} from "react-router-dom";
 import {MenuProps} from "../../App.tsx";
@@ -33,7 +33,7 @@ export default function CoinDetail(menuProps: MenuProps) {
     const snapshots: TradesSummarySnapshot[] = useFetch<TradesSummarySnapshot[]>(snapshotUrl)
     const coinDetail = useFetch<CoinDetailResponse>(addPathVariable('/binance/trades/coin-summary', code))
 
-    useEffect(() => {
+    const setupMenu = useCallback(() => {
         const navigationContent: NavigationDefinition[] = [
             {text: "Summary", link: "/binance/summary"},
             {text: "Orders", link: "/binance/orders"},
@@ -43,7 +43,11 @@ export default function CoinDetail(menuProps: MenuProps) {
         menuProps.setNavigationContent(navigationContent)
 
         document.title = code + ' trades detail';
-    }, []);
+    }, [menuProps, code]);
+
+    useEffect(() => {
+        setupMenu();
+    }, [setupMenu]);
 
     if (coinDetail === undefined) {
         return (<div></div>)
@@ -143,12 +147,18 @@ export default function CoinDetail(menuProps: MenuProps) {
         )
     }
 
-    function isTradesSummarySnapshot(obj: any): obj is TradesSummarySnapshot {
-        return obj && typeof obj.actualValue === 'number';
+    function isTradesSummarySnapshot(obj: unknown): obj is TradesSummarySnapshot {
+        return obj !== null && 
+               typeof obj === 'object' && 
+               'actualValue' in obj && 
+               typeof (obj as TradesSummarySnapshot).actualValue === 'number';
     }
 
-    function isTrade(obj: any): obj is Trade {
-        return obj && typeof obj.id === 'string';
+    function isTrade(obj: unknown): obj is Trade {
+        return obj !== null && 
+               typeof obj === 'object' && 
+               'id' in obj && 
+               typeof (obj as Trade).id === 'string';
     }
 
     function reduceToHourly(data) {

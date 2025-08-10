@@ -82,6 +82,7 @@ export const useFetchPost = async <T>(url: string, body: unknown): Promise<T> =>
             return res.data as T
         }).catch((err: AxiosError) => {
             handleApiError(err, "POST");
+            throw err; // Re-throw to maintain Promise<T> return type
         });
 };
 
@@ -91,6 +92,7 @@ export const useFetchDelete = async <T>(url: string): Promise<T> => {
             return res.data as T
         }).catch((err: AxiosError) => {
             handleApiError(err, "DELETE");
+            throw err; // Re-throw to maintain Promise<T> return type
         });
 };
 

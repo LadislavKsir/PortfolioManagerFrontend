@@ -1,9 +1,10 @@
-import {MenuProps, NavigationDefinition} from "../../App.tsx";
-import {JSX, useEffect} from "react";
+import {MenuProps} from "../../App.tsx";
+import {NavigationDefinition} from "../../routing/NavigationDefinition.tsx";
+import {JSX, useCallback, useEffect} from "react";
 
 export default function PatriaSummary(menuProps: MenuProps) {
 
-    useEffect(() => {
+    const setupMenu = useCallback(() => {
         menuProps.setMenuComponentContent(contextualMenuComponent());
 
         const navigationContent: NavigationDefinition[] = [
@@ -11,7 +12,11 @@ export default function PatriaSummary(menuProps: MenuProps) {
             {text: "Dividends", link: "/patria/orders"}
         ]
         menuProps.setNavigationContent(navigationContent)
-    }, []);
+    }, [menuProps]);
+
+    useEffect(() => {
+        setupMenu();
+    }, [setupMenu]);
 
     return (
         <div>

@@ -1,6 +1,6 @@
 import useFetch from "../../api/Api.ts";
 import {DataGrid, GridColDef, GridRenderCellParams, GridValidRowModel} from "@mui/x-data-grid";
-import {JSX, useEffect, useState} from "react";
+import {JSX, useCallback, useEffect, useState} from "react";
 import {MenuProps} from "../../App.tsx";
 import {PagedResponse} from "../../types/common/PagedResponse.ts";
 import {LockedSubscription} from "../../types/LockedSubscription.ts";
@@ -21,7 +21,7 @@ export default function Earn(menuProps: MenuProps) {
     const [selectedCoins, setSelectedCoins] = useState<Set<string>>(new Set());
     const [allCoins, setAllCoins] = useState<Set<string>>(new Set());
 
-    useEffect(() => {
+    const setupMenu = useCallback(() => {
         menuProps.setMenuComponentContent(
             (
                 <div>
@@ -34,7 +34,11 @@ export default function Earn(menuProps: MenuProps) {
         menuProps.setNavigationContent(binanceNavigation())
 
         document.title = 'Earn';
-    }, []);
+    }, [menuProps]);
+
+    useEffect(() => {
+        setupMenu();
+    }, [setupMenu]);
 
 
     const columns: GridColDef[] = [
@@ -42,7 +46,7 @@ export default function Earn(menuProps: MenuProps) {
             field: 'coinCodex',
             headerName: 'Coin',
             valueGetter: (_, row: LockedSubscription) => row.coinCode,
-            renderCell: (params: GridRenderCellParams<any, string>) => {
+            renderCell: (params: GridRenderCellParams<LockedSubscription, string>) => {
                 if (params.value) {
                     return (
                         <div>
@@ -95,7 +99,7 @@ export default function Earn(menuProps: MenuProps) {
             headerName: 'Finished',
 
             type: 'string',
-            renderCell: (params: GridRenderCellParams<any, boolean>) => {
+            renderCell: (params: GridRenderCellParams<LockedSubscription, boolean>) => {
                 if (params.value === true) {
                     return (
                         <div className="d-flex justify-content-between align-items-center" style={{cursor: "pointer"}}>
@@ -146,7 +150,7 @@ export default function Earn(menuProps: MenuProps) {
             setSelectedCoins(new Set([...flexCoinCodes, ...lockedCoinCodes]));
             setAllCoins(new Set([...flexCoinCodes, ...lockedCoinCodes]));
         }
-    }, [lockedSubscriptionsRewards]);
+    }, [lockedSubscriptionsRewards, flexibleSubscriptionsRewards]);
 
     function lockedSubscriptionsTable(): JSX.Element {
         return (

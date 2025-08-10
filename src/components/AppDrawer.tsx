@@ -31,7 +31,7 @@ export function AppDrawer(props: AppDrawerProps): JSX.Element {
         }
     };
 
-    const handleRightClick = (event: React.MouseEvent) => {
+    const handleRightClick = (_event: React.MouseEvent) => {
         // Allow the default browser right-click menu to appear
         // event.preventDefault();
         // You can add custom behavior here if needed or remove this to fully rely on the browser's default context menu
