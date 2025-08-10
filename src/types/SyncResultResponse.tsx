@@ -19,4 +19,4 @@ export default interface SyncResultResponse {
         updated: 0,
         removed: 0
     }
-};
+}

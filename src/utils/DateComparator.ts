@@ -3,7 +3,7 @@ import {GridComparatorFn} from "@mui/x-data-grid";
 export function compareDates(v1: string, v2: string): number {
     const dateA = new Date(v1.split('.').reverse().join('-'));
     const dateB = new Date(v2.split('.').reverse().join('-'));
-    // @ts-ignore
+    // @ts-expect-error - Date subtraction returns number but TS doesn't recognize it
     return (dateA - dateB);
 }
 

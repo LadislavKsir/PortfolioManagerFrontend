@@ -8,9 +8,12 @@ import {
     Box
 } from '@mui/material';
 import {useNavigate} from "react-router-dom";
-import Paper from "@mui/material/Paper";
 
-const PortfolioSummaryList = ({ selectedIds }) => {
+interface PortfolioSummaryListProps {
+    selectedIds: number[];
+}
+
+const PortfolioSummaryList = ({ selectedIds }: PortfolioSummaryListProps) => {
     const [summaries, setSummaries] = useState<PortfolioSummary[]>([]);
     const navigate = useNavigate();
 
@@ -25,7 +28,7 @@ const PortfolioSummaryList = ({ selectedIds }) => {
                 const response = await axios.get<PortfolioSummary[]>('http://192.168.0.106:8081/portfolio/summary', {
                     params: { portfolioIds: selectedIds },
                     paramsSerializer: (params) =>
-                        params.portfolioIds.map((id: any) => `portfolioIds=${id}`).join('&'),
+                        params.portfolioIds.map((id: number) => `portfolioIds=${id}`).join('&'),
                 });
                 setSummaries(response.data);
             } catch (error) {

@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {MenuProps} from "../../App.tsx";
 import SyncButton from "../../components/SyncButton.tsx";
 import {binanceNavigation} from "../../routing/NavigationDefinitionFactory.tsx";
@@ -16,7 +16,7 @@ export default function Settings(menuProps: MenuProps) {
     const [isLoading, setIsLoading] = useState(false);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-    useEffect(() => {
+    const setupMenu = useCallback(() => {
         menuProps.setMenuComponentContent(
             (
                 <div>
@@ -29,7 +29,13 @@ export default function Settings(menuProps: MenuProps) {
         menuProps.setNavigationContent(binanceNavigation());
 
         document.title = 'Settings';
+    }, [menuProps]);
 
+    useEffect(() => {
+        setupMenu();
+    }, [setupMenu]);
+
+    useEffect(() => {
         // Fetch the current configuration
         const fetchConfig = async () => {
             try {

@@ -1,4 +1,4 @@
-import {JSX, useEffect, useState} from "react";
+import {JSX, useCallback, useEffect, useState} from "react";
 import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@mui/material";
 import Paper from "@mui/material/Paper";
 import TablePagination from '@mui/material/TablePagination';
@@ -17,7 +17,7 @@ export interface ColumnDefinition<T> {
     label: string;
     align?: "left" | "right" | "center";
     valueGetter?: (row: T) => string | number | JSX.Element;
-    valueFormatter?: (value: any) => string | number | JSX.Element;
+    valueFormatter?: (value: unknown) => string | number | JSX.Element;
 }
 
 
@@ -29,11 +29,7 @@ export default function DataTable<T>(props: DataTableProps<T>): JSX.Element {
     const [totalCount, setTotalCount] = useState<number>(0);
     const [data, setData] = useState<T[]>([]);
 
-    useEffect(() => {
-        loadData();
-    }, [page, pageSize]);
-
-    function loadData() {
+    const loadData = useCallback(() => {
         if (!props.dataSourceUrl) {
             console.log("DataTable: No dataSourceUrl provided, using static data.");
             setData(props.data || []);
@@ -61,7 +57,11 @@ export default function DataTable<T>(props: DataTableProps<T>): JSX.Element {
                 console.error("Error fetching data:", error);
                 setLoading(false);
             });
-    }
+    }, [props.dataSourceUrl, props.data, props.paged, page, pageSize]);
+
+    useEffect(() => {
+        loadData();
+    }, [loadData]);
 
     if (loading) return <p>Loading...</p>;
 
@@ -85,16 +85,16 @@ export default function DataTable<T>(props: DataTableProps<T>): JSX.Element {
         )
     }
 
-    const getDisplayValue = (value: any, valueFormatter: ((value: (string | number)) => (string | number | React.JSX.Element)) | undefined): string | number | React.JSX.Element => {
+    const getDisplayValue = (value: unknown, valueFormatter: ((value: (string | number)) => (string | number | React.JSX.Element)) | undefined): string | number | React.JSX.Element => {
         if (value === null || value === undefined) return '-';
 
-        if (valueFormatter) {
+        if (valueFormatter && (typeof value === 'string' || typeof value === 'number')) {
             return valueFormatter(value);
         } else if (typeof value === 'number') {
             return value.toFixed(4);
         }
 
-        return value;
+        return String(value);
     };
 
     return (

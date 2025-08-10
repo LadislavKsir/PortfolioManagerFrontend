@@ -1,7 +1,7 @@
 import useFetch, {useFetchDelete, useFetchPost} from "../../api/Api.ts";
 import {DataGrid, GridCellParams, GridColDef, GridRenderCellParams, GridValidRowModel} from "@mui/x-data-grid";
 import addParams, {Parameter} from "../../utils/UrlBuilder.ts";
-import {JSX, useEffect, useState} from "react";
+import {JSX, useCallback, useEffect, useState} from "react";
 import {ListOrdersResponse, TradeOrder} from "../../types/Orders.ts";
 import {FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Tab, Tabs} from "@mui/material";
 import {MenuProps} from "../../App.tsx";
@@ -23,7 +23,7 @@ export default function Orders(menuProps: MenuProps) {
     const [selectedCoin, setSelectedCoin] = useState<string>("");
 
 
-    useEffect(() => {
+    const setupMenu = useCallback(() => {
         menuProps.setMenuComponentContent(
             (
                 <div>
@@ -36,7 +36,11 @@ export default function Orders(menuProps: MenuProps) {
         menuProps.setNavigationContent(binanceNavigation())
 
         document.title = 'Orders';
-    }, []);
+    }, [menuProps]);
+
+    useEffect(() => {
+        setupMenu();
+    }, [setupMenu]);
 
 
 
