@@ -2,9 +2,16 @@ import axios, {AxiosError} from "axios";
 import useSWR from "swr";
 import {errorNotification, fetchOkNotification} from "../utils/NotificationsHelper.ts";
 
-const BASE_URL = 'http://192.168.0.106:8080/api'
-export const axiosInstance = axios.create({
+// API Configuration
+const API_CONFIG = {
     baseURL: 'http://192.168.0.106:8080',
+    apiPath: '/api'
+} as const;
+
+const BASE_URL = `${API_CONFIG.baseURL}${API_CONFIG.apiPath}`;
+
+export const axiosInstance = axios.create({
+    baseURL: API_CONFIG.baseURL,
     headers: {
         Accept: "application/json",
         "Content-Type": "application/json"
@@ -47,78 +54,44 @@ export enum MethodTypes {
     PATCH = 'PATCH'
 }
 
-// const useFetch = <T>(url: string, method: string): T => {
-//     const BASE_URL = 'http://localhost:8080'
-//
-//     const fetcher = async (url: string) => {
-//         return await axiosInstance.get(url).then((res: { data: T; }) => res.data as T);
-//     };
-//
-//     return useSWR(BASE_URL + url, fetcher).data as T
-// };
+// Common error handler for API requests
+const handleApiError = (error: AxiosError, action: string = "request") => {
+    const message = `${action} failed: ${error.code || 'Unknown'} - ${error.message}`;
+    errorNotification(message);
+    console.error("API Error:", error);
+    throw error;
+};
 
-const useCachedFetch = <T>(url: string): T => {
-    // const BASE_URL = 'http://localhost:8080'
-
-    const fetcher = async (url: string) => {
-        return await axiosInstance
-            .get(url)
-            .then((res: { data: T; }) => res.data as T)
-            .catch((err: AxiosError) => {
-                errorNotification(err.code + ": " + err.message)
-                throw err;
-            });
-    };
-
-    const swrConfig = {
-        // Cache the result for 1 minute (60000 ms)
-        dedupingInterval: 60000,
-        // Optionally, revalidate every 5 minutes
-        refreshInterval: 300000,
-        revalidateOnFocus: false, // Prevent refetching when the window is focused
-    }
-
-    return useSWR(BASE_URL + url, fetcher, swrConfig).data as T
-}
+// Common fetcher function for SWR
+const createFetcher = <T>() => async (url: string): Promise<T> => {
+    return await axiosInstance
+        .get(url)
+        .then((res: { data: T; }) => res.data as T)
+        .catch((err: AxiosError) => handleApiError(err, "GET"));
+};
 
 const useFetch = <T>(url: string): T => {
-    // const BASE_URL = 'http://localhost:8080/api'
-
-    const fetcher = async (url: string) => {
-        return await axiosInstance
-            .get(url)
-            .then((res: { data: T; }) => res.data as T)
-            .catch((err: AxiosError) => {
-                console.log("Error fetching data:", err);
-                errorNotification(err.code + ": " + err.message)
-                throw err;
-            });
-    };
-
+    const fetcher = createFetcher<T>();
     return useSWR(BASE_URL + url, fetcher).data as T
 };
 
-export const useFetchPost = async <T>(url: string, body: any): Promise<T> => {
-
-
+export const useFetchPost = async <T>(url: string, body: unknown): Promise<T> => {
     return await axiosInstance
         .post(BASE_URL + url, body)
         .then((res: { data: T; }) => {
             return res.data as T
         }).catch((err: AxiosError) => {
-            errorNotification(err.code + ": " + err.message)
-            throw err;
+            handleApiError(err, "POST");
         });
 };
 
 export const useFetchDelete = async <T>(url: string): Promise<T> => {
-    // const BASE_URL = 'http://localhost:8080'
-
     return await axiosInstance.delete(BASE_URL + url).then((res: { data: T; }) => {
             fetchOkNotification()
             return res.data as T
-        }
-    );
+        }).catch((err: AxiosError) => {
+            handleApiError(err, "DELETE");
+        });
 };
 
 export default useFetch;

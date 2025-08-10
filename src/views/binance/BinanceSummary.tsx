@@ -4,7 +4,7 @@ import {DataGrid, GridRowParams} from "@mui/x-data-grid";
 import {useNavigate} from "react-router-dom";
 import {CoinTradesSummary, CoinTradesSummaryResponse} from "../../types/CoinTradesSummary.ts";
 import {Trade} from "../../types/Trade.ts";
-import {JSX, useEffect, useState} from "react";
+import {JSX, useCallback, useEffect, useState} from "react";
 import {Box, Card, CardContent, Grid, TableContainer, Typography} from "@mui/material";
 
 import isStableCoin from "../../utils/StableCoins.ts";
@@ -24,7 +24,7 @@ export default function BinanceSummary(menuProps: MenuProps) {
     const navigate = useNavigate();
     const [checked, _] = useState(true);
 
-    useEffect(() => {
+    const setupMenu = useCallback(() => {
         menuProps.setMenuComponentContent(
             <div>
                 <SyncButton content={menuProps.dialogProps.content}
@@ -35,7 +35,11 @@ export default function BinanceSummary(menuProps: MenuProps) {
         menuProps.setNavigationContent(binanceNavigation)
 
         document.title = 'Binance summary';
-    }, []);
+    }, [menuProps]);
+
+    useEffect(() => {
+        setupMenu();
+    }, [setupMenu]);
 
     function rowClick(params: GridRowParams) {
         navigate("/binance/coins/" + params.id);

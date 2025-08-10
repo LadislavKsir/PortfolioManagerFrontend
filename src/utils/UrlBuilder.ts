@@ -23,5 +23,5 @@ export function addPathVariable(url: string, pathVariable: string): string {
 
 export interface Parameter {
     key: string,
-    value: any | undefined
+    value: string | number | boolean | undefined
 }
